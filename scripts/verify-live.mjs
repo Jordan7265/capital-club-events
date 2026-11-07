@@ -5,7 +5,9 @@
  *     within 14 days
  *   - Redirect: the non-canonical host answers 308 to the canonical host, keeping path and query
  *   - Routes: every page returns 200, and an unknown path returns 404. Each carries
- *     X-Robots-Tag: noindex, nofollow, noarchive, nosnippet.
+ *     X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, and every page's HTML carries
+ *     <meta name="robots" content="noindex, nofollow">. The event routes come from
+ *     src/data/events.ts, the same list the site generates its event pages from.
  *   - /robots.txt disallows everything; there is no sitemap; the /mockups routes are gone
  *
  *   node scripts/verify-live.mjs [canonicalHost] [redirectHost]
@@ -18,18 +20,15 @@
  */
 import { connect } from 'node:tls';
 import { pathToFileURL } from 'node:url';
+// Node strips the types natively; events.ts uses only erasable syntax and imports nothing.
+import { events } from '../src/data/events.ts';
 
 export const ROBOTS = 'noindex, nofollow, noarchive, nosnippet';
-const SLUGS = [
-  'playgrounds-for-asheville-rooftop-benefit',
-  'blue-ridge-bourbon-and-bites',
-  'winter-rooftop-market-and-mulled-wine-social',
-  'mistletoe-masquerade-holiday-party',
-  'new-years-eve-on-the-rooftop',
-  'winter-jazz-night',
-  'valentines-supper-club',
-];
-export const PAGES = ['/', '/events', ...SLUGS.map((s) => `/events/${s}`), '/photos', '/contact'];
+export const ROBOTS_META = 'noindex, nofollow';
+
+/** Every page route the site builds: the fixed pages plus one per event (as getStaticPaths does). */
+export const pagesFor = (eventList) => ['/', '/events', ...eventList.map((e) => `/events/${e.slug}`), '/photos', '/contact'];
+export const PAGES = pagesFor(events);
 export const GONE = ['/this-page-does-not-exist', '/mockups', '/mockups/a', '/mockups/b/events', '/sitemap.xml', '/sitemap-index.xml', '/sitemap-0.xml'];
 export const REDIRECT_PATHS = ['/', '/events/winter-jazz-night', '/photos?from=launch-check', '/this-page-does-not-exist'];
 const DAY = 86_400_000;
@@ -71,13 +70,15 @@ export async function httpGet(url) {
 const statusOf = (res) => (res.error ? `no response (${res.error})` : res.status);
 const headerOf = (res, name) => res.headers?.get(name) ?? null;
 const bodyOf = async (res) => (res.error ? '' : res.text());
+/** The content of the page's <meta name="robots">, or null when it has none. */
+const robotsMetaOf = (html) => /<meta\s+name="robots"\s+content="([^"]*)"/i.exec(html)?.[1] ?? null;
 
 /**
  * Runs every launch check and returns one { ok, msg } per check. `get(url)` must resolve to a
  * fetch Response (or { error }) and `tls(host)` to the shape tlsInfo returns; both default to the
- * real network.
+ * real network. `pages` defaults to every route derived from the event data.
  */
-export async function runChecks({ canonical, redirecting, get = httpGet, tls = tlsInfo, now = Date.now() }) {
+export async function runChecks({ canonical, redirecting, get = httpGet, tls = tlsInfo, now = Date.now(), pages = PAGES }) {
   const results = [];
   const check = (ok, msg) => results.push({ ok: Boolean(ok), msg });
 
@@ -110,16 +111,19 @@ export async function runChecks({ canonical, redirecting, get = httpGet, tls = t
     check(res.status === 308 && loc === `https://${canonical}${path}`, `https://${redirecting}${path} → ${statusOf(res)} ${loc}`);
   }
 
-  // Canonical host: pages 200, everything gone 404, noindex header on all of them
-  for (const [paths, want] of [[PAGES, 200], [GONE, 404]]) {
+  // Canonical host: pages 200 with the robots meta, everything gone 404, noindex header on all
+  for (const [paths, want] of [[pages, 200], [GONE, 404]]) {
     for (const path of paths) {
       const res = await get(`https://${canonical}${path}`);
       const tag = headerOf(res, 'x-robots-tag');
       const type = (headerOf(res, 'content-type') ?? '').split(';')[0];
-      check(
-        res.status === want && tag === ROBOTS,
-        `${statusOf(res)} ${path.padEnd(52)} ${type.padEnd(10)} X-Robots-Tag: ${tag}`,
-      );
+      const line = `${statusOf(res)} ${path.padEnd(52)} ${type.padEnd(10)} X-Robots-Tag: ${tag}`;
+      if (want === 404) {
+        check(res.status === want && tag === ROBOTS, line);
+        continue;
+      }
+      const meta = robotsMetaOf(await bodyOf(res));
+      check(res.status === want && tag === ROBOTS && meta === ROBOTS_META, `${line} · robots meta: ${meta ?? 'missing'}`);
     }
   }
 
@@ -137,11 +141,6 @@ export async function runChecks({ canonical, redirecting, get = httpGet, tls = t
     );
   }
 
-  // Pages carry the robots meta too (second layer)
-  {
-    const html = await bodyOf(await get(`https://${canonical}/`));
-    check(/<meta name="robots" content="noindex, nofollow"\s*\/?>/.test(html), 'home page HTML has <meta name="robots" content="noindex, nofollow">');
-  }
 
   return results;
 }

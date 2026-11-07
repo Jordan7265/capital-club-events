@@ -11,13 +11,15 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { main, runChecks, PAGES, REDIRECT_PATHS, ROBOTS } from '../scripts/verify-live.mjs';
+import { main, runChecks, pagesFor, GONE, PAGES, REDIRECT_PATHS, ROBOTS } from '../scripts/verify-live.mjs';
+import { events } from '../src/data/events.ts';
 
 const CANON = 'www.example.test';
 const APEX = 'example.test';
 const NOW = Date.parse('2026-11-07T12:00:00Z');
 const DAY = 86_400_000;
 const HOME_HTML = '<html><head><meta name="robots" content="noindex, nofollow"></head><body></body></html>';
+const META_OK = ' · robots meta: noindex, nofollow';
 
 const goodTls = async (host) => ({
   authorized: true,
@@ -43,8 +45,8 @@ function site(override = () => undefined) {
 }
 
 /** Runs every check against the fake site and returns only the failure messages. */
-async function failures({ get = site(), tls = goodTls } = {}) {
-  const results = await runChecks({ canonical: CANON, redirecting: APEX, get, tls, now: NOW });
+async function failures({ get = site(), tls = goodTls, pages } = {}) {
+  const results = await runChecks({ canonical: CANON, redirecting: APEX, get, tls, now: NOW, pages });
   return results.filter((r) => !r.ok).map((r) => r.msg);
 }
 
@@ -52,8 +54,20 @@ const on = (host, path) => (u) => u.host === host && u.pathname + u.search === p
 
 test('baseline: a site that meets every condition passes all checks', async () => {
   const results = await runChecks({ canonical: CANON, redirecting: APEX, get: site(), tls: goodTls, now: NOW });
-  assert.equal(results.length, 2 + 1 + REDIRECT_PATHS.length + 11 + 7 + 1 + 1);
+  assert.equal(results.length, 2 + 1 + REDIRECT_PATHS.length + PAGES.length + GONE.length + 1);
   assert.deepEqual(results.filter((r) => !r.ok), []);
+});
+
+test('routes: the pages checked are derived from src/data/events.ts, one per event', () => {
+  assert.deepEqual(PAGES, ['/', '/events', ...events.map((e) => `/events/${e.slug}`), '/photos', '/contact']);
+  assert.deepEqual(pagesFor([{ slug: 'spring-gala' }]), ['/', '/events', '/events/spring-gala', '/photos', '/contact']);
+});
+
+test('routes: a page for a newly added event is checked, so a missing one fails', async () => {
+  // spring-gala is not built, so the fake site answers 404 for it.
+  const failed = await failures({ pages: pagesFor([...events, { slug: 'spring-gala' }]) });
+  assert.equal(failed.length, 1);
+  assert.match(failed[0], /^404 \/events\/spring-gala +text\/html +X-Robots-Tag: noindex, nofollow, noarchive, nosnippet · robots meta: missing$/);
 });
 
 test('TLS: an untrusted certificate fails and names the host and the reason', async () => {
@@ -115,7 +129,7 @@ test('routes: a page that does not return 200 fails and names the status and pat
   const get = site((u) => (on(CANON, '/photos')(u) ? new Response('boom', { status: 500, headers: { 'x-robots-tag': ROBOTS } }) : undefined));
   const failed = await failures({ get });
   assert.equal(failed.length, 1);
-  assert.match(failed[0], /^500 \/photos +text\/plain X-Robots-Tag: noindex, nofollow, noarchive, nosnippet$/);
+  assert.match(failed[0], /^500 \/photos +text\/plain X-Robots-Tag: noindex, nofollow, noarchive, nosnippet · robots meta: missing$/);
 });
 
 test('routes: a missing or weaker X-Robots-Tag fails', async () => {
@@ -126,8 +140,8 @@ test('routes: a missing or weaker X-Robots-Tag fails', async () => {
   });
   const failed = await failures({ get });
   assert.equal(failed.length, 2);
-  assert.match(failed[0], /^200 \/events\/winter-jazz-night +text\/html +X-Robots-Tag: null$/);
-  assert.match(failed[1], /^200 \/contact +text\/html +X-Robots-Tag: noindex$/);
+  assert.equal(failed[0], `200 ${'/events/winter-jazz-night'.padEnd(52)} text/html  X-Robots-Tag: null${META_OK}`);
+  assert.equal(failed[1], `200 ${'/contact'.padEnd(52)} text/html  X-Robots-Tag: noindex${META_OK}`);
 });
 
 test('routes: an unknown path served as 200 (a soft 404) fails', async () => {
@@ -164,9 +178,18 @@ for (const [name, body] of [
   });
 }
 
-test('robots meta: a home page without <meta name="robots"> fails', async () => {
-  const get = site((u) => (on(CANON, '/')(u) ? new Response('<html><head></head></html>', { headers: { 'x-robots-tag': ROBOTS } }) : undefined));
-  assert.deepEqual(await failures({ get }), ['home page HTML has <meta name="robots" content="noindex, nofollow">']);
+test('robots meta: checked on every page, so the home, an event or the contact page without it, or with a weaker value, fails', async () => {
+  const page = (html) => new Response(html, { headers: { 'x-robots-tag': ROBOTS, 'content-type': 'text/html' } });
+  const get = site((u) => {
+    if (on(CANON, '/')(u) || on(CANON, '/events/winter-jazz-night')(u)) return page('<html><head></head></html>');
+    if (on(CANON, '/contact')(u)) return page('<html><head><meta name="robots" content="noindex"></head></html>');
+    return undefined;
+  });
+  assert.deepEqual(await failures({ get }), [
+    `200 ${'/'.padEnd(52)} text/html  X-Robots-Tag: ${ROBOTS} · robots meta: missing`,
+    `200 ${'/events/winter-jazz-night'.padEnd(52)} text/html  X-Robots-Tag: ${ROBOTS} · robots meta: missing`,
+    `200 ${'/contact'.padEnd(52)} text/html  X-Robots-Tag: ${ROBOTS} · robots meta: noindex`,
+  ]);
 });
 
 test('network: a request that gets no response fails with the error instead of throwing', async () => {

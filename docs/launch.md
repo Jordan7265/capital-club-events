@@ -58,7 +58,10 @@ Production at verification time: commit `2dacf46` (PR #5), deployment
 - **No sitemap:** `/sitemap.xml`, `/sitemap-index.xml` and `/sitemap-0.xml` return 404.
 - **robots.txt:** `/robots.txt` returns 200 with exactly `User-agent: *` / `Disallow: /`, and
   names no sitemap.
-- **Robots meta:** the HTML carries `<meta name="robots" content="noindex, nofollow">`.
+- **Robots meta:** the HTML of every page in the 200 list carries
+  `<meta name="robots" content="noindex, nofollow">`. The event routes are derived from
+  `src/data/events.ts`, the same list the site builds its event pages from, so a new event is
+  checked automatically.
 
 ### Browser checks against production (all passed)
 
@@ -143,7 +146,7 @@ against the fixed build, all 63 Playwright tests pass. The fixed build also pass
 
 ### Live verifier tests
 
-`tests/verify-live.unit.mjs` (22 tests, `npm run test:scripts`, part of `make test`) gives
+`tests/verify-live.unit.mjs` (24 tests, `npm run test:scripts`, part of `make test`) gives
 `scripts/verify-live.mjs` a fake site that passes every check, then breaks one condition per test.
 It asserts the failure and its diagnostic for each of these:
 
@@ -155,7 +158,8 @@ It asserts the failure and its diagnostic for each of these:
   back.
 - A served sitemap.
 - A robots.txt that allows crawling, names a sitemap, or lacks `Disallow: /`.
-- A missing robots meta.
+- A missing or weaker robots meta on any page, including an event or contact page.
+- A new event's page that is not served: the route list must follow `src/data/events.ts`.
 - A request with no response.
 
 `main` must return exit code 1 with FAIL lines and a summary, and the real CLI must exit 1

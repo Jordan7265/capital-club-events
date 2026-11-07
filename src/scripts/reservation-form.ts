@@ -35,8 +35,6 @@ export function initReservationForms() {
         code: fakeCode(stem),
         guests: `${guests} ${guests === '1' ? 'guest' : 'guests'}`,
         greeting: `Thank you, ${firstName(name ?? '')}. We’ve saved your spot.`,
-        // Operator-requested copy: point guests to the email they entered. This demo sends no email
-        // (or anything else); the footer disclaimer says reservations are not processed.
         emailNote: `Check your email at ${email} for your confirmation.`,
       }),
     });

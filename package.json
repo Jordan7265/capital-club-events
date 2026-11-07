@@ -12,6 +12,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "lint": "node scripts/lint.mjs",
     "verify:noindex": "node scripts/verify-noindex.mjs",
     "test:e2e": "playwright test",
     "screenshots": "node scripts/screenshots.mjs"

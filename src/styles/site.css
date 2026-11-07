@@ -1,7 +1,7 @@
 /* ==========================================================================
-   The Capital Club of Asheville — events site
+   The Capital Club of Asheville: events site
    Direction A, "Skyline Noir" (docs/design-decision.md): after-dark rooftop
-   luxe — ink-blue night, gilded hairlines, café lights, high-contrast Bodoni
+   luxe: ink-blue night, gilded hairlines, café lights, high-contrast Bodoni
    display over a clean geometric sans.
 
    Mobile rules of thumb used throughout: reading text >= 1rem (16px), tap
@@ -52,7 +52,7 @@
   overflow-x: clip;
 }
 
-/* Film grain over everything — subtle, fixed, non-interactive. */
+/* Film grain over everything: subtle, fixed, non-interactive. */
 .cc-shell::after {
   content: '';
   position: fixed;
@@ -574,6 +574,10 @@
 .cc-spotlight__title {
   font-size: clamp(2.4rem, 4.6vw, 4.25rem);
   margin-block: 1rem 1.5rem;
+}
+
+.cc-spotlight__sub {
+  display: block;
 }
 
 .cc-spotlight__summary {
@@ -1444,8 +1448,9 @@
 
 .mf__confirm-details div {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 1.5rem;
+  gap: 0.25rem 1.5rem;
 }
 
 .mf__confirm-details dt {
@@ -1457,10 +1462,13 @@
 }
 
 .mf__confirm-details dd {
+  margin-left: auto;
   text-align: right;
 }
 
 .mf__code {
+  /* The fake code stays on one line; on narrow screens it drops below its label instead. */
+  white-space: nowrap;
   font-family: var(--display);
   font-size: 1.5rem;
   letter-spacing: 0.06em;

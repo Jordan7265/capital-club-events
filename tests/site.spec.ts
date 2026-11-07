@@ -9,7 +9,7 @@ import { test, expect, type Page } from '@playwright/test';
 const EVENTS = [
   {
     slug: 'playgrounds-for-asheville-rooftop-benefit',
-    title: 'Playgrounds for Asheville — Rooftop Benefit',
+    title: 'Playgrounds for Asheville \u2014 Rooftop Benefit',
     date: 'Saturday, November 14, 2026',
     time: '6:30 – 10:30 PM',
     price: '$125',
@@ -29,7 +29,7 @@ const EVENTS = [
 const FEATURED = EVENTS[0];
 const PAGES = ['/', '/events', ...EVENTS.map((e) => `/events/${e.slug}`), '/photos', '/contact'];
 const NOT_FOUND = '/this-page-does-not-exist';
-const DISCLAIMER = 'Demonstration site — reservations and messages are not processed.';
+const DISCLAIMER = 'Demonstration site. Reservations and messages are not processed.';
 
 /** Load every lazy asset up front so later network assertions only see what the page does. */
 async function settle(page: Page) {
@@ -74,6 +74,32 @@ test('every route carries the robots noindex meta, and robots.txt disallows all'
   expect(await (await request.get('/robots.txt')).text()).toBe('User-agent: *\nDisallow: /\n');
 });
 
+test('no em dashes in shipped text or scripts, except the operator-approved event name', async ({ page, request }) => {
+  // The operator approved one exception: the Nov 14 event keeps its given name, dash included.
+  const strip = (text: string) => text.split(FEATURED.title).join('');
+  const scripts = new Set<string>();
+  for (const path of [...PAGES, NOT_FOUND]) {
+    await page.goto(path);
+    // Rendered text (entities decoded) plus every attribute value, e.g. titles, labels, alt text.
+    const text = await page.evaluate(() =>
+      [
+        document.title,
+        document.body.textContent ?? '',
+        ...[...document.querySelectorAll('*')].flatMap((el) => [...el.attributes].map((a) => a.value)),
+      ].join('\n'),
+    );
+    const leftover = strip(text).match(/.{0,30}\u2014.{0,30}/);
+    expect(leftover?.[0], `${path} contains an em dash`).toBeUndefined();
+    const html = await (await request.get(path)).text();
+    expect(/&mdash;|&#8212;|&#x2014;/i.test(html), `${path} contains an em dash entity`).toBe(false);
+    for (const [, src] of html.matchAll(/<script[^>]+src="([^"]+)"/g)) scripts.add(src!);
+  }
+  expect(scripts.size).toBeGreaterThan(0);
+  for (const src of scripts) {
+    expect(/\u2014|&mdash;|&#8212;/i.test(strip(await (await request.get(src)).text())), `${src} contains an em dash`).toBe(false);
+  }
+});
+
 test('header nav and footer disclaimer appear on every page; nav marks the current section', async ({ page }) => {
   const current: Record<string, string | null> = { '/': null, '/events': 'Upcoming Events', '/photos': 'Photos', '/contact': 'Contact' };
   for (const path of [...PAGES, NOT_FOUND]) {
@@ -82,7 +108,7 @@ test('header nav and footer disclaimer appear on every page; nav marks the curre
     await expect(nav.getByRole('link', { name: 'Upcoming Events' })).toHaveAttribute('href', '/events');
     await expect(nav.getByRole('link', { name: 'Photos' })).toHaveAttribute('href', '/photos');
     await expect(nav.getByRole('link', { name: 'Contact' })).toHaveAttribute('href', '/contact');
-    await expect(page.getByRole('link', { name: 'The Capital Club of Asheville — home' })).toHaveAttribute('href', '/');
+    await expect(page.getByRole('link', { name: 'The Capital Club of Asheville home page' })).toHaveAttribute('href', '/');
     await expect(page.getByText(DISCLAIMER), path).toBeVisible();
     if (path in current) {
       const label = current[path];
@@ -108,7 +134,7 @@ test('home: hero CTA to events, Nov 14 spotlight, three more upcoming events, ve
   await expect(page.getByRole('link', { name: 'See upcoming events' })).toHaveAttribute('href', '/events');
 
   const spotlight = page.locator('section', { has: page.locator('#spotlight-title') });
-  await expect(spotlight.getByRole('heading', { level: 2 })).toHaveText('Playgrounds for Asheville — Rooftop Benefit');
+  await expect(spotlight.getByRole('heading', { level: 2 })).toHaveText(FEATURED.title);
   for (const text of ['Saturday, November 14, 2026', '6:30 – 10:30 PM', 'Mikasa Catering', 'Live DJ', 'Cocktail or dressy casual', '$125', 'playgrounds']) {
     await expect(spotlight.getByText(text, { exact: false }).first(), text).toBeVisible();
   }
@@ -140,8 +166,8 @@ test('events list: all seven events in date order, each with date, time, price a
 for (const e of EVENTS) {
   test(`event page ${e.slug}: exact date, time, price, attire and details`, async ({ page }) => {
     await page.goto(`/events/${e.slug}`);
-    await expect(page).toHaveTitle(`${e.title} — The Capital Club of Asheville`);
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(e.title.replace(' — ', ': '));
+    await expect(page).toHaveTitle(`${e.title} | The Capital Club of Asheville`);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(e.title);
     const details = page.locator('.cc-ticket');
     await expect(details.locator('dl > div', { has: page.locator('dt', { hasText: /^Date$/ }) }).locator('dd')).toHaveText(e.date);
     await expect(details.locator('dl > div', { has: page.locator('dt', { hasText: /^Time$/ }) }).locator('dd')).toHaveText(e.time);
@@ -167,7 +193,7 @@ test('Nov 14 benefit states its purpose, caterer, DJ and attire', async ({ page 
 });
 
 // ---------------------------------------------------------------------------------------------
-// Mock forms — validation, "Submitting…", confirmation, and zero network requests
+// Mock forms: validation, "Submitting…", confirmation, and zero network requests
 // ---------------------------------------------------------------------------------------------
 
 for (const width of [1440, 390]) {
@@ -290,7 +316,7 @@ test('contact form end to end: validates, fakes a submit, sends nothing', async 
   await expect(submit).toBeDisabled();
   const confirmation = form.locator('[data-mf-confirmation]');
   await expect(confirmation).toBeVisible({ timeout: 3000 });
-  await expect(confirmation.getByRole('heading', { name: 'Thank you — we’ll be in touch.' })).toBeFocused();
+  await expect(confirmation.getByRole('heading', { name: 'Thank you. We’ll be in touch.' })).toBeFocused();
   await expect(confirmation.locator('[data-fill="code"]')).toHaveText(/^CC-MSG-[0-9A-F]{4}$/);
   await expect(confirmation.locator('[data-fill="topic"]')).toHaveText('Hosting a private event or wedding');
   await expect(confirmation.locator('[data-fill="email"]')).toHaveText('jordan@example.com');
@@ -437,7 +463,7 @@ test('keyboard: skip link first, then the header nav in order, with a visible fo
   await expect(page.locator('main')).toBeFocused();
 
   await page.goto('/events');
-  const order = ['Skip to content', 'The Capital Club of Asheville — home', 'Upcoming Events', 'Photos', 'Contact'];
+  const order = ['Skip to content', 'The Capital Club of Asheville home page', 'Upcoming Events', 'Photos', 'Contact'];
   for (const name of order) {
     await page.keyboard.press('Tab');
     const focused = page.locator(':focus');

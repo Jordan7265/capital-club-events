@@ -2,7 +2,7 @@
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import ReservationForm from '../../components/ReservationForm.astro';
 import { events, upcomingEvents, venue, type VenueEvent } from '../../data/events';
-import { dateParts, fullAddress, longDate, priceAmount, timeRange } from '../../lib/format';
+import { dateParts, fullAddress, longDate, priceAmount, timeRange, titleLines } from '../../lib/format';
 
 export function getStaticPaths() {
   return events.map((event) => ({ params: { slug: event.slug }, props: { event } }));
@@ -14,13 +14,13 @@ interface Props {
 
 const { event } = Astro.props;
 const d = dateParts(event.start);
-const [mainTitle, subTitle] = event.title.split(' — ');
+const heading = titleLines(event.title);
 const index = upcomingEvents.findIndex((e) => e.slug === event.slug);
 const earlier = upcomingEvents[index - 1];
 const later = upcomingEvents[index + 1];
 ---
 
-<SiteLayout title={`${event.title} — The Capital Club of Asheville`} current="event" description={event.summary}>
+<SiteLayout title={`${event.title} | The Capital Club of Asheville`} current="event" description={event.summary}>
   <section class="cc-event-hero" aria-labelledby="event-title" style={`--pos:${event.image.position ?? '50% 50%'}`}>
     <div class="cc-hero__media">
       <img src={event.image.src} alt={event.image.alt} width={event.image.width} height={event.image.height} fetchpriority="high" />
@@ -28,8 +28,8 @@ const later = upcomingEvents[index + 1];
     <div class="cc-wrap cc-event-hero__content">
       <p class="cc-eyebrow cc-reveal" style="--i:0">{event.kicker} · {d.weekdayLong}, {d.monthLong} {d.day}</p>
       <h1 class="cc-display cc-event-hero__title cc-reveal" id="event-title" style="--i:1">
-        {mainTitle}
-        {subTitle && <span class="cc-event-hero__sub"><span class="visually-hidden">: </span>{subTitle}</span>}
+        {heading.main}
+        {heading.sub && <span class="cc-event-hero__sub"><span class="visually-hidden">{heading.sep}</span>{heading.sub}</span>}
       </h1>
       <p class="cc-event-hero__when cc-reveal" style="--i:2">
         <span>{longDate(event.start)}</span>{' '}
@@ -60,7 +60,7 @@ const later = upcomingEvents[index + 1];
           <aside class="cc-benefit" aria-labelledby="benefit-title">
             <h2 class="cc-eyebrow" id="benefit-title">The cause</h2>
             <p class="cc-benefit__text">{event.benefit}.</p>
-            {event.price.note && <p class="cc-benefit__note">{event.price.note} — every ticket counts.</p>}
+            {event.price.note && <p class="cc-benefit__note">{event.price.note}. Every ticket counts.</p>}
           </aside>
         )
       }

@@ -37,7 +37,7 @@ const isActive = (key: string) => key === current || (key === 'events' && curren
       <a
         class="cc-header__brand"
         href="/"
-        aria-label={`${venue.name} — home`}
+        aria-label={`${venue.name} home page`}
         aria-current={current === 'home' ? 'page' : undefined}
       >
         <img src="/images/venue/logo.png" alt="" width="392" height="380" />
@@ -101,7 +101,7 @@ const isActive = (key: string) => key === current || (key === 'events' && curren
       </div>
       <div class="cc-footer__base">
         <p>© 2026 {venue.name}</p>
-        <p class="cc-footer__demo">Demonstration site — reservations and messages are not processed.</p>
+        <p class="cc-footer__demo">Demonstration site. Reservations and messages are not processed.</p>
       </div>
     </footer>
   </div>

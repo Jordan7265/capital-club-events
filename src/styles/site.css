@@ -92,6 +92,8 @@
 .cc-link {
   position: relative;
   display: inline-block;
+  /* Keeps short links (the footer's "Home") at a 44px-wide tap target. */
+  min-width: 44px;
   padding-block: 0.6rem;
   color: var(--paper);
   text-decoration: none;
@@ -1030,6 +1032,12 @@
   object-position: var(--pos, 50% 50%);
 }
 
+@media (max-width: 720px) {
+  .cc-event-hero .cc-hero__media img {
+    object-position: var(--pos-phone, var(--pos, 50% 50%));
+  }
+}
+
 .cc-event-hero::before {
   content: '';
   position: absolute;
@@ -1470,6 +1478,23 @@
 .mf__confirm-details dd {
   margin-left: auto;
   text-align: right;
+}
+
+/* Phones: each label sits above its value, both left-aligned, so long values wrap cleanly
+   instead of ragged-right beside a label. */
+@media (max-width: 560px) {
+  .mf__confirm-details div {
+    flex-direction: column;
+  }
+  .mf__confirm-details dd {
+    margin-left: 0;
+    text-align: left;
+  }
+}
+
+/* Keeps a date or a time range on one line, so a value only wraps between them. */
+.mf__nowrap {
+  white-space: nowrap;
 }
 
 .mf__code {
@@ -2131,5 +2156,63 @@ html:has(.cc-lightbox[open]) {
 @media (max-width: 480px) {
   .cc-footer__grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Phones: no visible text under 16px (launch gate) ----------
+   On screens 560px and narrower, labels, buttons and fine print come up to 1rem. Uppercase
+   tracking tightens so the larger labels still fit a 375px screen, and the facts list stacks. */
+@media (max-width: 560px) {
+  .cc-eyebrow,
+  .cc-facts dt,
+  .cc-row__month,
+  .cc-stats span,
+  .cc-badge,
+  .cc-ticket__main dt,
+  .cc-ticket__stub span,
+  .mf__label,
+  .mf__total-label,
+  .mf__confirm-kicker,
+  .mf__confirm-details dt,
+  .cc-lightbox__count {
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+  }
+  .cc-btn,
+  .mf__submit,
+  .cc-pager__all,
+  .cc-mapcard__cta {
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+  }
+  .cc-row__per,
+  .cc-ticket__stub small,
+  .mf__optional,
+  .cc-reservebar__price span,
+  .cc-footer__base {
+    font-size: 1rem;
+  }
+  /* Labels that now wrap split into even lines instead of leaving one word behind. */
+  .cc-eyebrow {
+    text-wrap: balance;
+  }
+  /* The hero eyebrow stays on one line beside its gold rule, down to 375px. */
+  .cc-hero__eyebrow {
+    letter-spacing: 0.05em;
+  }
+  /* In uppercase at 16px, the three nav links would wrap onto two lines on a 375px screen,
+     and the underlined "Make another reservation" / "Send another message" would wrap too. */
+  .cc-nav a,
+  .mf__again {
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+  .cc-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  /* The wordmark's small tagline cannot fit beside the logo at 16px; the club name stays. */
+  .cc-header__wordmark span:last-child {
+    display: none;
   }
 }

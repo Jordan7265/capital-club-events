@@ -44,6 +44,27 @@ async function settle(page: Page) {
   await page.waitForLoadState('networkidle');
 }
 
+/**
+ * Every visible run of text smaller than 16px: labels, buttons, fine print and decorative
+ * (aria-hidden) text included. Only text that is not rendered (hidden, closed dialog,
+ * visually-hidden, zero-size) is skipped.
+ */
+function textUnder16px(page: Page) {
+  return page.evaluate(() => {
+    const out: string[] = [];
+    for (const el of document.querySelectorAll('body *')) {
+      if (![...el.childNodes].some((n) => n.nodeType === 3 && n.textContent!.trim())) continue;
+      const r = el.getBoundingClientRect();
+      const cs = getComputedStyle(el);
+      if (r.width < 2 || r.height < 2 || cs.visibility === 'hidden') continue;
+      if (el.closest('.visually-hidden, [hidden], dialog:not([open]), noscript')) continue;
+      const size = parseFloat(cs.fontSize);
+      if (size < 16) out.push(`${el.tagName.toLowerCase()}.${el.className} ${size}px "${el.textContent!.trim().slice(0, 30)}"`);
+    }
+    return out;
+  });
+}
+
 /** Records every request the page makes from now on. */
 function recordRequests(page: Page) {
   const requests: string[] = [];
@@ -191,6 +212,18 @@ test('Nov 14 benefit states its purpose, caterer, DJ and attire', async ({ page 
   await expect(dd('Catering')).toContainText('Mikasa Catering');
   await expect(dd('Entertainment')).toContainText('Live DJ');
   await expect(dd('Attire')).toHaveText('Cocktail or dressy casual');
+});
+
+test('Nov 14 benefit is pictured by kids on a playground on the home page, /events and its own page', async ({ page }) => {
+  const PHOTO = '/images/events/playground-swings-golden-hour.webp';
+  await page.goto('/');
+  await expect(page.locator('.cc-spotlight .cc-frame img')).toHaveAttribute('src', PHOTO);
+  await expect(page.locator('.cc-spotlight .cc-frame img')).toHaveAttribute('alt', /children swing high on a sandy playground/);
+  await page.goto('/events');
+  await expect(page.locator('main .cc-row').first().locator('.cc-row__image')).toHaveAttribute('src', PHOTO);
+  await page.goto(`/events/${FEATURED.slug}`);
+  await expect(page.locator('.cc-event-hero img')).toHaveAttribute('src', PHOTO);
+  expect((await page.request.get(PHOTO)).status()).toBe(200);
 });
 
 // ---------------------------------------------------------------------------------------------
@@ -526,7 +559,7 @@ for (const width of [375, 390, 430]) {
       }
     });
 
-    test('tap targets are at least 44px tall', async ({ page }) => {
+    test('tap targets are at least 44px tall and 44px wide', async ({ page }) => {
       for (const path of [...PAGES, NOT_FOUND]) {
         await page.goto(path);
         const small = await page.evaluate(() => {
@@ -539,8 +572,8 @@ for (const width of [375, 390, 430]) {
             if (!visible(el) || el.matches('.skip-link, .cc-inline-link')) continue;
             // Row titles are covered by a full-row overlay link; measure the row instead.
             const target = el.closest('.cc-row__title') ? el.closest('.cc-row')! : el;
-            const h = target.getBoundingClientRect().height;
-            if (h < 44) out.push(`${el.tagName.toLowerCase()}.${el.className} "${el.textContent?.trim().slice(0, 30)}" ${h.toFixed(1)}px`);
+            const { width: w, height: h } = target.getBoundingClientRect();
+            if (h < 44 || w < 44) out.push(`${el.tagName.toLowerCase()}.${el.className} "${el.textContent?.trim().slice(0, 30)}" ${w.toFixed(1)}x${h.toFixed(1)}px`);
           }
           return out;
         });
@@ -548,26 +581,37 @@ for (const width of [375, 390, 430]) {
       }
     });
 
-    test('reading text is at least 16px (labels and fine print excepted, but never below 12px / 10px)', async ({ page }) => {
-      const finePrint = '.cc-footer__base p, .cc-row__per, .cc-reservebar__price span, .cc-ticket__stub small, .mf__optional';
+    test('no visible text is smaller than 16px on any page, or with the lightbox open, form errors or a confirmation showing', async ({ page }) => {
       for (const path of [...PAGES, NOT_FOUND]) {
         await page.goto(path);
-        const bad = await page.evaluate((finePrint) => {
-          const out: string[] = [];
-          for (const el of document.querySelectorAll('body *')) {
-            const hasText = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent!.trim());
-            const r = el.getBoundingClientRect();
-            if (!hasText || r.width < 2 || el.closest('.visually-hidden, [hidden], dialog:not([open]), [aria-hidden="true"]')) continue;
-            const cs = getComputedStyle(el);
-            const size = parseFloat(cs.fontSize);
-            const label = cs.textTransform === 'uppercase';
-            const min = label ? 10 : el.matches(finePrint) ? 12 : 16;
-            if (size < min) out.push(`${el.tagName.toLowerCase()}.${el.className} ${size}px "${el.textContent!.trim().slice(0, 30)}"`);
-          }
-          return out;
-        }, finePrint);
-        expect(bad, path).toEqual([]);
+        expect(await textUnder16px(page), path).toEqual([]);
       }
+
+      await page.goto('/photos');
+      await page.locator('[data-gallery-index="2"]').click();
+      await expect(page.locator('[data-lightbox][open]')).toBeVisible();
+      expect(await textUnder16px(page), 'lightbox open').toEqual([]);
+
+      await page.goto(`/events/${FEATURED.slug}`);
+      const reservation = page.locator('[data-mock-form="reservation"]');
+      await reservation.locator('[data-mf-submit]').click();
+      await expect(reservation.getByText('Please enter your name.')).toBeVisible();
+      expect(await textUnder16px(page), 'reservation form errors').toEqual([]);
+      await reservation.getByLabel('Full name').fill('Avery Example');
+      await reservation.getByLabel('Email').fill('avery@example.com');
+      await reservation.locator('[data-mf-submit]').click();
+      await expect(reservation.locator('[data-mf-confirmation]')).toBeVisible({ timeout: 3000 });
+      expect(await textUnder16px(page), 'reservation confirmation').toEqual([]);
+
+      await page.goto('/contact');
+      const contact = page.locator('[data-mock-form="contact"]');
+      await contact.getByLabel('Full name').fill('Jordan Example');
+      await contact.getByLabel('Email').fill('jordan@example.com');
+      await contact.getByLabel('Topic').selectOption({ index: 1 });
+      await contact.getByLabel('Message').fill('We would love to host a rehearsal dinner for 40 guests in May.');
+      await contact.locator('[data-mf-submit]').click();
+      await expect(contact.locator('[data-mf-confirmation]')).toBeVisible({ timeout: 3000 });
+      expect(await textUnder16px(page), 'contact confirmation').toEqual([]);
     });
 
     test('hero CTAs stack full-width with equal widths', async ({ page }) => {
@@ -607,6 +651,55 @@ for (const width of [375, 390, 430]) {
           expect(r.per.left - r.price.right, `${path} unit sits right after the price`).toBeLessThan(16);
         }
       }
+    });
+
+    test('home spotlight: "When" takes the whole row so the date stays on one line', async ({ page }) => {
+      await page.goto('/');
+      const facts = (await page.locator('.cc-facts').boundingBox())!;
+      const when = page.locator('.cc-facts > div', { has: page.locator('dt', { hasText: /^When$/ }) });
+      expect((await when.boundingBox())!.width).toBeGreaterThan(facts.width - 2);
+      // Date, line break, time: exactly two lines.
+      const lines = await when.locator('dd').evaluate((dd) => dd.getBoundingClientRect().height / parseFloat(getComputedStyle(dd).lineHeight));
+      expect(Math.round(lines)).toBe(2);
+    });
+
+    test('reservation confirmation: labels above left-aligned values, date and time never split, 44px button', async ({ page }) => {
+      await page.goto(`/events/${FEATURED.slug}`);
+      const form = page.locator('[data-mock-form="reservation"]');
+      await form.getByLabel('Full name').fill('Avery Example');
+      await form.getByLabel('Email').fill('avery@example.com');
+      await form.locator('[data-mf-submit]').click();
+      const confirmation = form.locator('[data-mf-confirmation]');
+      await expect(confirmation).toBeVisible({ timeout: 3000 });
+      const rows = await confirmation.locator('.mf__confirm-details > div').evaluateAll((els) =>
+        els.map((row) => {
+          const dt = row.querySelector('dt')!;
+          const range = document.createRange();
+          range.selectNodeContents(row.querySelector('dd')!);
+          const text = range.getClientRects()[0];
+          return { label: dt.textContent, dt: dt.getBoundingClientRect().toJSON(), textLeft: text.left, textTop: text.top };
+        }),
+      );
+      expect(rows.length).toBe(4);
+      for (const r of rows) {
+        expect(r.textTop, `${r.label}: value below its label`).toBeGreaterThanOrEqual(r.dt.bottom - 1);
+        expect(Math.abs(r.textLeft - r.dt.left), `${r.label}: value left-aligned with its label`).toBeLessThan(1);
+      }
+      expect(await confirmation.locator('.mf__nowrap').evaluateAll((els) => els.map((el) => el.getClientRects().length))).toEqual([1, 1]);
+      const again = (await confirmation.getByRole('button', { name: 'Make another reservation' }).boundingBox())!;
+      expect(Math.min(again.width, again.height)).toBeGreaterThanOrEqual(44);
+    });
+
+    test('open lightbox: close, previous and next are at least 44 x 44', async ({ page }) => {
+      await page.goto('/photos');
+      await page.locator('[data-gallery-index="2"]').click();
+      const dialog = page.locator('[data-lightbox][open]');
+      await expect(dialog).toBeVisible();
+      const sizes = await dialog.locator('button').evaluateAll((els) =>
+        els.filter((el) => el.getBoundingClientRect().width > 1).map((el) => Math.min(el.getBoundingClientRect().width, el.getBoundingClientRect().height)),
+      );
+      expect(sizes.length).toBeGreaterThanOrEqual(3);
+      for (const s of sizes) expect(s).toBeGreaterThanOrEqual(44);
     });
 
     test('forms are single-column with controls at least 44px tall', async ({ page }) => {

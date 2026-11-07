@@ -17,6 +17,11 @@ export interface EventImage {
   height: number;
   /** Optional CSS object-position for cropped placements. */
   position?: string;
+  /**
+   * Optional object-position for the event hero on phones (720px and narrower), where a landscape
+   * photo is cropped to a tall portrait. Falls back to `position`.
+   */
+  phonePosition?: string;
 }
 
 export interface EventPrice {
@@ -84,12 +89,17 @@ export const events: VenueEvent[] = [
     attire: 'Cocktail or dressy casual',
     benefit: 'Renovating children’s playgrounds across the Asheville area',
     price: { amount: 125, per: 'person', note: 'Proceeds support playground renovation' },
+    // Stock photo (Pexels License), not a venue photo: the benefit is about playgrounds, so it is
+    // pictured by kids at play rather than the rooftop. Source and license: public/images/CREDITS.md.
     image: {
-      src: '/images/venue/rooftop-dusk-string-lights.webp',
-      alt: 'Guests gather on the Capital Club rooftop terrace at dusk under string lights, with the sun setting over the mountains.',
-      width: 1632,
-      height: 1224,
-      position: '50% 40%',
+      src: '/images/events/playground-swings-golden-hour.webp',
+      alt: 'Two children swing high on a sandy playground in late-afternoon sun, with slides and climbing frames behind them.',
+      width: 1800,
+      height: 1200,
+      // 4:5 home spotlight keeps both children in frame; the tall phone hero centres the one
+      // in the blue shirt.
+      position: '60% 50%',
+      phonePosition: '80% 50%',
     },
     featured: true,
   },

@@ -60,11 +60,12 @@ const strip = [
     <div class="cc-wrap cc-spotlight">
       <figure class="cc-frame">
         <img
-          src="/images/venue/rooftop-ceremony-mountain-view.webp"
-          alt="Guests seated on the rooftop terrace with the Blue Ridge Mountains beyond."
-          width="960"
-          height="720"
+          src={next.image.src}
+          alt={next.image.alt}
+          width={next.image.width}
+          height={next.image.height}
           loading="lazy"
+          style={next.image.position && `object-position:${next.image.position}`}
         />
         <span class="cc-frame__numeral" aria-hidden="true">{nextParts.day}</span>
       </figure>

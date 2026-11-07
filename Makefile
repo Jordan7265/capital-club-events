@@ -12,7 +12,9 @@ check:
 lint:
 	npm run lint
 
-# Build, verify the three noindex layers, then run the Playwright suite (it serves dist/ itself).
+# Build, verify the three noindex layers, unit-test the live verifier's failure checks, then run
+# the Playwright suite (it serves dist/ itself).
 test: build
 	npm run verify:noindex
+	npm run test:scripts
 	npm run test:e2e

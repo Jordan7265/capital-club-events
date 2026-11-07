@@ -1,4 +1,4 @@
-# Capital Club Events — demo site
+# Capital Club Events: demo site
 
 A fully static, **non-indexed** demo website listing events at The Capital Club of Asheville
 (rooftop venue, 82 Patton Ave, Asheville, NC). It is a sales/demo prop, not a live business
@@ -26,6 +26,8 @@ The reservation form (every event page) and the contact form share `src/scripts/
 They validate inline, show a ~1 s "Submitting…" state, then a confirmation with a fake code
 (`CC-1114-4F7A` for reservations, `CC-MSG-4F7A` for messages). They make no network request
 and never navigate. Without JavaScript the submit button stays disabled and a note explains why.
+The reservation confirmation also tells guests to check the email address they entered for their
+confirmation. No email is sent; the footer disclaimer says reservations are not processed.
 
 On phones, event pages also show a slim "$125 · Reserve" bar that jumps to the form. It hides
 once the form reaches the screen.
@@ -62,10 +64,14 @@ npm run dev              # local dev server
 npm run build            # static build → dist/
 npm run verify:noindex   # check the three noindex layers against dist/
 npm run check            # astro check (types + diagnostics)
+npm run lint             # project rules: no network calls or API routes, no em dashes, no report.html
 npx playwright install chromium   # once, for browser tests
 npm run test:e2e         # Playwright: builds, serves dist/, runs tests/site.spec.ts
 npm run screenshots      # full-page PNGs of every route at 375/390/430/1440 → .evidence/ (needs `npm run preview` running)
 ```
+
+The same checks are available through `make`: `make check` (types), `make lint` (project rules) and
+`make test` (build, noindex verification, then the Playwright suite).
 
 ## Layout
 
@@ -104,4 +110,4 @@ Venue photography and the logo come from capitalclubavl.com (home and gallery pa
 `/wp-content/uploads/`). The operator authorized reuse for this demo. Files are downloaded and
 re-encoded locally, with metadata stripped, never hotlinked.
 
-Footer note on every page: *Demonstration site — reservations and messages are not processed.*
+Footer note on every page: *Demonstration site. Reservations and messages are not processed.*

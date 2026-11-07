@@ -68,6 +68,16 @@ export function eventsByMonth(list: VenueEvent[]) {
   return [...groups.values()];
 }
 
+/**
+ * Splits a "Main \u2014 Sub" event name into the two lines of a large heading. `sep` is the exact
+ * separator from the name, rendered visually hidden so screen readers and copy/paste still get
+ * the full name. Names without a separator come back as `main` only.
+ */
+export function titleLines(title: string): { main: string; sep: string; sub: string } {
+  const match = /^(.*?)(\s+\u2014\s+)(.+)$/.exec(title);
+  return match ? { main: match[1]!, sep: match[2]!, sub: match[3]! } : { main: title, sep: '', sub: '' };
+}
+
 export function fullAddress(): string {
   return `${venue.street}, ${venue.city}, ${venue.region} ${venue.postalCode}`;
 }

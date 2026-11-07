@@ -18,7 +18,7 @@ export function initReserveBar() {
 
   // The root is the viewport stretched upward without limit, so "intersecting" means exactly
   // "the form's top has reached the bottom of the screen". That flips on every crossing in either
-  // direction, including jumps (Home key, back-to-top) that skip over the form entirely — a plain
+  // direction, including jumps (Home key, back-to-top) that skip over the form entirely. A plain
   // viewport observer would miss those and leave the bar in a stale state.
   new IntersectionObserver(([entry]) => entry && setVisible(!entry.isIntersecting), {
     rootMargin: '100000px 0px 0px 0px',

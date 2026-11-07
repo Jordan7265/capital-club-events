@@ -69,16 +69,16 @@ export const events: VenueEvent[] = [
     slug: 'playgrounds-for-asheville-rooftop-benefit',
     title: 'Playgrounds for Asheville — Rooftop Benefit',
     kicker: 'Rooftop Benefit',
-    start: '2026-11-14T18:30:00-05:00',
-    end: '2026-11-14T22:30:00-05:00',
+    start: '2026-11-14T16:30:00-05:00',
+    end: '2026-11-14T20:30:00-05:00',
     summary:
-      'An evening above downtown to raise funds for renovating children’s playgrounds across the Asheville area — dinner by Mikasa Catering and a live DJ under the lights.',
+      'Doors open at 4:30 for a sunset cocktail hour, then an evening above downtown raising funds to renovate children’s playgrounds across the Asheville area, with dinner by Mikasa Catering and a live DJ.',
     description: [
       'Every neighborhood deserves a place where kids can climb, swing and run until the streetlights come on. Playgrounds for Asheville brings friends, families and local businesses together on the rooftop to help renovate children’s playgrounds across the Asheville area.',
-      'Arrive as the sun drops behind the Blue Ridge and settle in for a cocktail-hour reception, a spread from Mikasa Catering, and a live DJ carrying the night from golden hour to the city lights.',
+      'We start at 4:30 so you can watch the sunset over the Blue Ridge with a cocktail hour on the terrace. Then settle in for a spread from Mikasa Catering and a live DJ carrying the night from golden hour to the city lights.',
       'Proceeds from every ticket go toward playground renovation projects in the Asheville area.',
     ],
-    catering: 'Mikasa Catering — passed bites and a chef-attended dinner spread',
+    catering: 'Mikasa Catering: passed bites and a chef-attended dinner spread',
     entertainment: 'Live DJ from cocktail hour through last dance',
     highlights: { catering: 'Mikasa Catering', entertainment: 'Live DJ' },
     attire: 'Cocktail or dressy casual',
@@ -124,15 +124,15 @@ export const events: VenueEvent[] = [
     start: '2026-12-05T17:00:00-05:00',
     end: '2026-12-05T21:00:00-05:00',
     summary:
-      'Local makers, warm mugs of mulled wine and long mountain views — holiday shopping, rooftop style.',
+      'Local makers, warm mugs of mulled wine and long mountain views: holiday shopping, rooftop style.',
     description: [
       'The terrace becomes a small winter market for an evening: local makers with handmade gifts, mulled wine kept warm by the bar, and the mountains turning blue as the sun goes down.',
-      'Come early for the best of the makers’ tables, stay for the view, and bring a list — or don’t.',
+      'Come early for the best of the makers’ tables, stay for the view, and bring a list (or don’t).',
     ],
     catering: 'Mulled wine, hot cider and seasonal snacks',
     entertainment: 'Local makers’ market and a holiday playlist',
     highlights: { catering: 'Mulled wine & cider', entertainment: 'Makers’ market' },
-    attire: 'Casual — dress warmly for the terrace',
+    attire: 'Casual (dress warmly for the terrace)',
     price: { amount: 25, per: 'person', note: 'Includes one mulled wine or cider' },
     image: {
       src: '/images/venue/rooftop-terrace-sunny.webp',
@@ -150,13 +150,13 @@ export const events: VenueEvent[] = [
     summary:
       'Masks encouraged. A live band, holiday cocktails and a dance floor that fills early.',
     description: [
-      'Dust off something sparkly and bring a mask — or pick one up at the door. The banquet room is dressed for the season, the band is booked for the whole night, and the holiday cocktail list is short and very good.',
+      'Dust off something sparkly and bring a mask, or pick one up at the door. The banquet room is dressed for the season, the band is booked for the whole night, and the holiday cocktail list is short and very good.',
       'Step out to the terrace between sets for a breath of mountain air and a look at downtown in its holiday lights.',
     ],
     catering: 'Holiday cocktails and a late-night dessert table',
     entertainment: 'Live band, two sets',
     highlights: { catering: 'Holiday cocktails', entertainment: 'Live band' },
-    attire: 'Festive — masks encouraged',
+    attire: 'Festive (masks encouraged)',
     price: { amount: 95, per: 'person' },
     image: {
       src: '/images/venue/reception-dance-floor.webp',
@@ -198,7 +198,7 @@ export const events: VenueEvent[] = [
     summary:
       'A live jazz trio, seasonal cocktails and the warm glow of the banquet room on a cold January night.',
     description: [
-      'Settle into a candlelit table for three sets from a live jazz trio — standards, a few surprises, and plenty of room for conversation in between.',
+      'Settle into a candlelit table for three sets from a live jazz trio: standards, a few surprises, and plenty of room for conversation in between.',
       'The bar is pouring a short list of seasonal cocktails built for a winter night in the mountains.',
     ],
     catering: 'Seasonal cocktails and shareable plates',
@@ -223,7 +223,7 @@ export const events: VenueEvent[] = [
       'A plated dinner for two by the windows, with a live acoustic set as the city lights come up.',
     description: [
       'Make a night of it: a plated, multi-course dinner for two at a table by the windows, a live acoustic set, and dessert as the city lights come up below.',
-      'Seating is intimate and limited — reserve as a couple.',
+      'Seating is intimate and limited. Reserve as a couple.',
     ],
     catering: 'Plated multi-course dinner for two',
     entertainment: 'Live acoustic set',

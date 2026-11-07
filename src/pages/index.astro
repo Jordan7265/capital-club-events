@@ -3,11 +3,11 @@ import SiteLayout from '../layouts/SiteLayout.astro';
 import StringLights from '../components/StringLights.astro';
 import EventRow from '../components/EventRow.astro';
 import { featuredEvent, upcomingEvents, venuePhotos } from '../data/events';
-import { dateParts, longDate, priceAmount, timeRange } from '../lib/format';
+import { dateParts, longDate, priceAmount, timeRange, titleLines } from '../lib/format';
 
 const next = featuredEvent;
 const nextParts = dateParts(next.start);
-const [nextMain, nextSub] = next.title.split(' — ');
+const nextTitle = titleLines(next.title);
 const more = upcomingEvents.filter((e) => e.slug !== next.slug).slice(0, 3);
 const strip = [
   'rooftop-ceremony-mountain-view',
@@ -20,7 +20,7 @@ const strip = [
 ].map((key) => venuePhotos.find((p) => p.src.includes(key))!);
 ---
 
-<SiteLayout title="The Capital Club of Asheville — Rooftop Events" current="home">
+<SiteLayout title="The Capital Club of Asheville | Rooftop Events" current="home">
   <section class="cc-hero" aria-labelledby="hero-title">
     <div class="cc-hero__media">
       <img
@@ -39,8 +39,8 @@ const strip = [
         <span class="cc-reveal" style="--i:2">above <em>Asheville</em></span>
       </h1>
       <p class="cc-hero__lede cc-reveal" style="--i:3">
-        Benefits, tastings and late nights on the rooftop at The Capital Club — downtown at your feet,
-        the Blue Ridge on every horizon.
+        Benefits, tastings and late nights on the rooftop at The Capital Club, with downtown at your
+        feet and the Blue Ridge on every horizon.
       </p>
       <div class="cc-hero__actions cc-reveal" style="--i:4">
         <a class="cc-btn cc-btn--solid" href="/events">
@@ -71,7 +71,13 @@ const strip = [
       <div>
         <p class="cc-eyebrow">The next evening · {next.kicker}</p>
         <h2 class="cc-display cc-spotlight__title" id="spotlight-title">
-          {nextMain}{nextSub && ' '}{nextSub && <em>—&nbsp;{nextSub}</em>}
+          {nextTitle.main}
+          {nextTitle.sub && (
+            <em class="cc-spotlight__sub">
+              <span class="visually-hidden">{nextTitle.sep}</span>
+              {nextTitle.sub}
+            </em>
+          )}
         </h2>
         <p class="cc-spotlight__summary">{next.summary}</p>
         <dl class="cc-facts">
@@ -119,7 +125,7 @@ const strip = [
         </h2>
         <p>
           The Capital Club of Asheville pairs a climate-controlled banquet room with a wide, open-air
-          terrace — city lights on one side, the Blue Ridge Mountains on the other.
+          terrace, with city lights on one side and the Blue Ridge Mountains on the other.
         </p>
         <p>
           With full bar service and a catering prep kitchen on site, it’s built for evenings that

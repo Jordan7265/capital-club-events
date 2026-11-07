@@ -29,12 +29,13 @@ export function initReservationForms() {
         total.textContent =
           Number.isInteger(n) && n >= MIN_GUESTS && n <= MAX_GUESTS
             ? `$${estimateTotal(amount, per, n).toLocaleString('en-US')}`
-            : '—';
+            : 'Select guests';
       },
-      fill: ({ name, guests }) => ({
+      fill: ({ name, email, guests }) => ({
         code: fakeCode(stem),
         guests: `${guests} ${guests === '1' ? 'guest' : 'guests'}`,
-        greeting: `Thank you, ${firstName(name ?? '')} — we’ve saved your spot.`,
+        greeting: `Thank you, ${firstName(name ?? '')}. We’ve saved your spot.`,
+        emailNote: `Check your email at ${email} for your confirmation.`,
       }),
     });
   }

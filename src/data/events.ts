@@ -69,6 +69,8 @@ export const events: VenueEvent[] = [
     slug: 'playgrounds-for-asheville-rooftop-benefit',
     title: 'Playgrounds for Asheville — Rooftop Benefit',
     kicker: 'Rooftop Benefit',
+    // Operator-requested schedule (2026-11-07): 4:30 to 8:30 PM so guests catch the sunset over a
+    // cocktail hour. It supersedes the plan's original 6:30 to 10:30 PM; do not restore that time.
     start: '2026-11-14T16:30:00-05:00',
     end: '2026-11-14T20:30:00-05:00',
     summary:

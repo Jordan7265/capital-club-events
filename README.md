@@ -26,6 +26,8 @@ The reservation form (every event page) and the contact form share `src/scripts/
 They validate inline, show a ~1 s "Submitting…" state, then a confirmation with a fake code
 (`CC-1114-4F7A` for reservations, `CC-MSG-4F7A` for messages). They make no network request
 and never navigate. Without JavaScript the submit button stays disabled and a note explains why.
+At the operator's request, the reservation confirmation also tells guests to check the email
+address they entered for their confirmation. No email is sent; the footer disclaimer covers it.
 
 On phones, event pages also show a slim "$125 · Reserve" bar that jumps to the form. It hides
 once the form reaches the screen.

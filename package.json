@@ -14,6 +14,8 @@
     "check": "astro check",
     "lint": "node scripts/lint.mjs",
     "verify:noindex": "node scripts/verify-noindex.mjs",
+    "verify:live": "node scripts/verify-live.mjs",
+    "test:scripts": "node --test tests/verify-live.unit.mjs",
     "test:e2e": "playwright test",
     "screenshots": "node scripts/screenshots.mjs"
   },

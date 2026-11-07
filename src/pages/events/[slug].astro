@@ -21,7 +21,7 @@ const later = upcomingEvents[index + 1];
 ---
 
 <SiteLayout title={`${event.title} | The Capital Club of Asheville`} current="event" description={event.summary}>
-  <section class="cc-event-hero" aria-labelledby="event-title" style={`--pos:${event.image.position ?? '50% 50%'}`}>
+  <section class="cc-event-hero" aria-labelledby="event-title" style={`--pos:${event.image.position ?? '50% 50%'};--pos-phone:${event.image.phonePosition ?? event.image.position ?? '50% 50%'}`}>
     <div class="cc-hero__media">
       <img src={event.image.src} alt={event.image.alt} width={event.image.width} height={event.image.height} fetchpriority="high" />
     </div>

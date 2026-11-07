@@ -43,8 +43,11 @@ once the form reaches the screen.
 - Event content is typed in `src/data/events.ts`, and event pages are generated from it.
 - Hosting: Vercel project `capital-club-events` (team `mancejs-projects`), git-connected to
   GitHub `mancej/capital-club-events` (transferred from `Jordan7265`, which keeps write access)
-  with `main` as production. Production URL: https://capital-club-events.vercel.app. Pushing or
-  merging to `main` deploys, and PRs get preview deployments behind Vercel Authentication.
+  with `main` as production. Pushing or merging to `main` deploys, and PRs get preview
+  deployments behind Vercel Authentication.
+- Live at **https://www.capitalclubavlevents.com** (canonical). `capitalclubavlevents.com`
+  308-redirects to it with the path kept, and https://capital-club-events.vercel.app serves the
+  same deployment. Domain, redirect and launch checks: [`docs/launch.md`](docs/launch.md).
 
 ## Do-not-index layers (all routes)
 
@@ -68,10 +71,14 @@ npm run lint             # project rules: no network calls or API routes, no em 
 npx playwright install chromium   # once, for browser tests
 npm run test:e2e         # Playwright: builds, serves dist/, runs tests/site.spec.ts
 npm run screenshots      # full-page PNGs of every route at 375/390/430/1440 → .evidence/ (needs `npm run preview` running)
+npm run verify:live      # live domain: TLS, apex → www 308, status + X-Robots-Tag per route, robots.txt, no sitemap
+npm run test:scripts     # unit tests: each verify:live check fails on a bad response
+PLAYWRIGHT_BASE_URL=https://www.capitalclubavlevents.com npm run test:e2e   # the Playwright suite against production
+node scripts/screenshots.mjs https://www.capitalclubavlevents.com .evidence/live   # screenshots of production
 ```
 
 The same checks are available through `make`: `make check` (types), `make lint` (project rules) and
-`make test` (build, noindex verification, then the Playwright suite).
+`make test` (build, noindex verification, the verify:live unit tests, then the Playwright suite).
 
 ## Layout
 
@@ -100,8 +107,8 @@ src/
   pages/
     index.astro, 404.astro, photos.astro, contact.astro
     events/index.astro, events/[slug].astro
-scripts/verify-noindex.mjs, scripts/screenshots.mjs
-tests/site.spec.ts
+scripts/verify-noindex.mjs, scripts/verify-live.mjs, scripts/screenshots.mjs
+tests/site.spec.ts, tests/verify-live.unit.mjs
 ```
 
 ## Imagery
@@ -109,5 +116,9 @@ tests/site.spec.ts
 Venue photography and the logo come from capitalclubavl.com (home and gallery pages, under
 `/wp-content/uploads/`). The operator authorized reuse for this demo. Files are downloaded and
 re-encoded locally, with metadata stripped, never hotlinked.
+
+The Nov 14 Playgrounds for Asheville benefit is pictured by a free-license stock photo of kids on
+playground swings (`public/images/events/`, Pexels License), not a venue photo. Its source,
+photographer and license are in [`public/images/CREDITS.md`](public/images/CREDITS.md).
 
 Footer note on every page: *Demonstration site. Reservations and messages are not processed.*

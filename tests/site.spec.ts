@@ -8,14 +8,14 @@ import { test, expect, type Page } from '@playwright/test';
 
 const EVENTS = [
   {
-    slug: 'playgrounds-for-asheville-rooftop-benefit',
-    title: 'Playgrounds for Asheville \u2014 Rooftop Benefit',
+    slug: 'deck-the-rooftop-holiday-toy-drive',
+    title: 'Deck the Rooftop: A Holiday Toy Drive for Asheville City Schools',
     date: 'Saturday, November 14, 2026',
     time: '4:30 – 8:30 PM',
     price: '$125',
     per: 'person',
     attire: 'Cocktail or dressy casual',
-    extra: ['Mikasa Catering', 'Live DJ'],
+    extra: ['Mikasa Catering', 'Live DJ', 'unwrapped toy', 'Asheville City Schools Foundation'],
     code: '1114',
   },
   { slug: 'blue-ridge-bourbon-and-bites', title: 'Blue Ridge Bourbon & Bites', date: 'Friday, November 20, 2026', time: '7 – 10 PM', price: '$75', per: 'person', attire: 'Smart casual', extra: ['bourbon'], code: '1120' },
@@ -156,7 +156,7 @@ test('home: hero CTA to events, Nov 14 spotlight, three more upcoming events, ve
 
   const spotlight = page.locator('section', { has: page.locator('#spotlight-title') });
   await expect(spotlight.getByRole('heading', { level: 2 })).toHaveText(FEATURED.title);
-  for (const text of ['Saturday, November 14, 2026', '4:30 – 8:30 PM', 'Mikasa Catering', 'Live DJ', 'Cocktail or dressy casual', '$125', 'playgrounds']) {
+  for (const text of ['Saturday, November 14, 2026', '4:30 – 8:30 PM', 'Mikasa Catering', 'Live DJ', 'Cocktail or dressy casual', '$125', 'toys']) {
     await expect(spotlight.getByText(text, { exact: false }).first(), text).toBeVisible();
   }
   await expect(spotlight.getByRole('link', { name: /Reserve your place/ })).toHaveAttribute('href', `/events/${FEATURED.slug}`);
@@ -202,11 +202,12 @@ for (const e of EVENTS) {
   });
 }
 
-test('Nov 14 benefit states its purpose, caterer, DJ and attire', async ({ page }) => {
+test('Nov 14 toy drive states its purpose, beneficiary, caterer, DJ and attire', async ({ page }) => {
   await page.goto(`/events/${FEATURED.slug}`);
   const main = page.locator('main');
-  await expect(main.locator('.cc-benefit')).toContainText('Renovating children’s playgrounds across the Asheville area');
-  await expect(main.locator('.cc-prose')).toContainText('renovate children’s playgrounds across the Asheville area');
+  await expect(main.locator('.cc-benefit')).toContainText('Holiday gifts for Asheville City Schools students, through the Asheville City Schools Foundation');
+  await expect(main.locator('.cc-prose')).toContainText('collect new, unwrapped toys for Asheville City Schools students');
+  await expect(main.locator('.cc-prose')).toContainText('Proceeds from every ticket benefit the Asheville City Schools Foundation');
   await expect(main.locator('.cc-prose')).toContainText('We start at 4:30 so you can watch the sunset over the Blue Ridge with a cocktail hour');
   const dd = (label: string) => main.locator('.cc-ticket dl > div', { has: page.locator('dt', { hasText: new RegExp(`^${label}$`) }) }).locator('dd');
   await expect(dd('Catering')).toContainText('Mikasa Catering');
@@ -214,11 +215,11 @@ test('Nov 14 benefit states its purpose, caterer, DJ and attire', async ({ page 
   await expect(dd('Attire')).toHaveText('Cocktail or dressy casual');
 });
 
-test('Nov 14 benefit is pictured by kids on a playground on the home page, /events and its own page', async ({ page }) => {
-  const PHOTO = '/images/events/playground-swings-golden-hour.webp';
+test('Nov 14 toy drive is pictured by a teddy bear under holiday lights on the home page, /events and its own page', async ({ page }) => {
+  const PHOTO = '/images/events/toy-drive-teddy-bear-tree-lights.webp';
   await page.goto('/');
   await expect(page.locator('.cc-spotlight .cc-frame img')).toHaveAttribute('src', PHOTO);
-  await expect(page.locator('.cc-spotlight .cc-frame img')).toHaveAttribute('alt', /children swing high on a sandy playground/);
+  await expect(page.locator('.cc-spotlight .cc-frame img')).toHaveAttribute('alt', /teddy bear .* Christmas trees glowing with string lights/);
   await page.goto('/events');
   await expect(page.locator('main .cc-row').first().locator('.cc-row__image')).toHaveAttribute('src', PHOTO);
   await page.goto(`/events/${FEATURED.slug}`);

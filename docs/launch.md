@@ -109,6 +109,14 @@ fine print and decorative (`aria-hidden`) text. A Playwright test enforces it at
 
 ### Benefit imagery (operator request, same change)
 
+> **Amended 2026-11-07:** at the operator's request, the Nov 14 event is now **"Deck the Rooftop:
+> A Holiday Toy Drive for Asheville City Schools"** (slug `deck-the-rooftop-holiday-toy-drive`).
+> Guests bring new, unwrapped toys, and proceeds benefit the Asheville City Schools Foundation.
+> The time, Mikasa Catering, the live DJ, the attire and the $125 price are unchanged. It is
+> pictured by Pexels 34642448 (a teddy bear under holiday lights, by Sóc Năng Động), and the
+> playground photo described below has been removed. The old URL 308-redirects to the new slug
+> via `vercel.json`. The section below records the launch check as it was run.
+
 The operator asked that the Nov 14 Playgrounds for Asheville benefit not be shown with a wedding
 photo. The home spotlight used a rooftop wedding ceremony. The benefit now uses a free-license
 photo of children on playground swings everywhere it appears: the home spotlight, the event

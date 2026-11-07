@@ -4,6 +4,13 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/events/playgrounds-for-asheville-rooftop-benefit",
+      "destination": "/events/deck-the-rooftop-holiday-toy-drive",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

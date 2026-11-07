@@ -71,35 +71,35 @@ export const venue = {
 
 export const events: VenueEvent[] = [
   {
-    slug: 'playgrounds-for-asheville-rooftop-benefit',
-    title: 'Playgrounds for Asheville — Rooftop Benefit',
-    kicker: 'Rooftop Benefit',
+    slug: 'deck-the-rooftop-holiday-toy-drive',
+    title: 'Deck the Rooftop: A Holiday Toy Drive for Asheville City Schools',
+    kicker: 'Holiday Toy Drive',
     start: '2026-11-14T16:30:00-05:00',
     end: '2026-11-14T20:30:00-05:00',
     summary:
-      'Doors open at 4:30 for a sunset cocktail hour, then an evening above downtown raising funds to renovate children’s playgrounds across the Asheville area, with dinner by Mikasa Catering and a live DJ.',
+      'Doors open at 4:30 for a sunset cocktail hour, then a festive evening above downtown collecting new, unwrapped toys for Asheville City Schools students, with dinner by Mikasa Catering and a live DJ.',
     description: [
-      'Every neighborhood deserves a place where kids can climb, swing and run until the streetlights come on. Playgrounds for Asheville brings friends, families and local businesses together on the rooftop to help renovate children’s playgrounds across the Asheville area.',
+      'Every kid deserves something to unwrap this season. Deck the Rooftop brings friends, families and local businesses together on the rooftop to collect new, unwrapped toys for Asheville City Schools students and their families ahead of the holidays.',
       'We start at 4:30 so you can watch the sunset over the Blue Ridge with a cocktail hour on the terrace. Then settle in for a spread from Mikasa Catering and a live DJ carrying the night from golden hour to the city lights.',
-      'Proceeds from every ticket go toward playground renovation projects in the Asheville area.',
+      'Bring a new, unwrapped toy for the drive. Proceeds from every ticket benefit the Asheville City Schools Foundation.',
     ],
     catering: 'Mikasa Catering: passed bites and a chef-attended dinner spread',
     entertainment: 'Live DJ from cocktail hour through last dance',
     highlights: { catering: 'Mikasa Catering', entertainment: 'Live DJ' },
     attire: 'Cocktail or dressy casual',
-    benefit: 'Renovating children’s playgrounds across the Asheville area',
-    price: { amount: 125, per: 'person', note: 'Proceeds support playground renovation' },
-    // Stock photo (Pexels License), not a venue photo: the benefit is about playgrounds, so it is
-    // pictured by kids at play rather than the rooftop. Source and license: public/images/CREDITS.md.
+    benefit: 'Holiday gifts for Asheville City Schools students, through the Asheville City Schools Foundation',
+    price: { amount: 125, per: 'person', note: 'Proceeds benefit the Asheville City Schools Foundation' },
+    // Stock photo (Pexels License), not a venue photo: the evening is a toy drive, so it is
+    // pictured by a teddy bear under holiday lights. Source and license: public/images/CREDITS.md.
     image: {
-      src: '/images/events/playground-swings-golden-hour.webp',
-      alt: 'Two children swing high on a sandy playground in late-afternoon sun, with slides and climbing frames behind them.',
-      width: 1800,
-      height: 1200,
-      // 4:5 home spotlight keeps both children in frame; the tall phone hero centres the one
-      // in the blue shirt.
-      position: '60% 50%',
-      phonePosition: '80% 50%',
+      src: '/images/events/toy-drive-teddy-bear-tree-lights.webp',
+      alt: 'A teddy bear in a red plaid scarf sits on a patterned blanket in front of Christmas trees glowing with string lights.',
+      width: 1600,
+      height: 2400,
+      // Portrait source: wide crops (desktop hero, list rows) sit on the bear's face with the
+      // lit trees above; the tall phone hero shows nearly the whole frame.
+      position: '50% 66%',
+      phonePosition: '45% 55%',
     },
     featured: true,
   },

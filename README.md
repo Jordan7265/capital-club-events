@@ -13,7 +13,7 @@ Built in Direction A, **Skyline Noir** (dark rooftop luxe), chosen by the operat
 
 | Route | What it shows |
 | --- | --- |
-| `/` | Dusk rooftop hero with café lights, the Nov 14 benefit spotlight, three more upcoming events, venue blurb, photo strip |
+| `/` | Dusk rooftop hero with café lights, the Nov 14 toy-drive spotlight, three more upcoming events, venue blurb, photo strip |
 | `/events` | All seven upcoming events by month, each with photo, date, time, attire, price and a Reserve link |
 | `/events/[slug]` | One page per event: description, details "ticket", map link and the mock reservation form |
 | `/photos` | 16-photo gallery with an accessible lightbox (arrow keys, Home/End, Esc, swipe) |
@@ -117,8 +117,11 @@ Venue photography and the logo come from capitalclubavl.com (home and gallery pa
 `/wp-content/uploads/`). The operator authorized reuse for this demo. Files are downloaded and
 re-encoded locally, with metadata stripped, never hotlinked.
 
-The Nov 14 Playgrounds for Asheville benefit is pictured by a free-license stock photo of kids on
-playground swings (`public/images/events/`, Pexels License), not a venue photo. Its source,
-photographer and license are in [`public/images/CREDITS.md`](public/images/CREDITS.md).
+The Nov 14 "Deck the Rooftop" holiday toy drive (benefiting the Asheville City Schools
+Foundation) is pictured by a free-license stock photo of a teddy bear under holiday lights
+(`public/images/events/`, Pexels License), not a venue photo. Its source, photographer and
+license are in [`public/images/CREDITS.md`](public/images/CREDITS.md). The event's old URL,
+`/events/playgrounds-for-asheville-rooftop-benefit`, permanently redirects to the new one via
+`vercel.json`.
 
 Footer note on every page: *Demonstration site. Reservations and messages are not processed.*

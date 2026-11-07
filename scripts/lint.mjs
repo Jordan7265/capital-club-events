@@ -103,15 +103,10 @@ report(
 );
 report('nothing opts out of static prerendering', findInFiles(codeFiles, /export\s+const\s+prerender\s*=\s*false/g));
 
-// 4. No em dashes in shipped UI text or the README, except the operator-approved event name
-const APPROVED_NAME = 'Playgrounds for Asheville \u2014 Rooftop Benefit';
-// Match the approved name as a unit alongside any em dash, then keep only the stray dashes.
-const NAME_OR_EM_DASH = new RegExp(`${APPROVED_NAME}|\u2014|&mdash;|&#8212;|&#x2014;`, 'gi');
+// 4. No em dashes in shipped UI text or the README
+const EM_DASH = /\u2014|&mdash;|&#8212;|&#x2014;/gi;
 const textFiles = [...srcFiles, ...walk(join(root, 'public')).filter((p) => extname(p) === '.txt'), join(root, 'README.md')];
-report(
-  'no em dashes in src/, public/*.txt or README.md (besides the approved event name)',
-  findInFiles(textFiles, NAME_OR_EM_DASH, (match) => match !== APPROVED_NAME),
-);
+report('no em dashes in src/, public/*.txt or README.md', findInFiles(textFiles, EM_DASH));
 
 // 5. No tracked report.html
 const tracked = execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' }).split('\n');

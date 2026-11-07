@@ -18,7 +18,7 @@ const base = (process.argv[2] ?? 'http://localhost:4321').replace(/\/$/, '');
 const out = process.argv[3] ?? '.evidence/screenshots';
 const WIDTHS = [375, 390, 430, 1440];
 const SLUGS = [
-  'playgrounds-for-asheville-rooftop-benefit',
+  'deck-the-rooftop-holiday-toy-drive',
   'blue-ridge-bourbon-and-bites',
   'winter-rooftop-market-and-mulled-wine-social',
   'mistletoe-masquerade-holiday-party',

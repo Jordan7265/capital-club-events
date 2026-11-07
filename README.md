@@ -8,8 +8,10 @@ The spec lives in [`docs/plans/capital-club-events-demo-site/plan.md`](docs/plan
 
 ## Current state: design review
 
-Three visual directions are built as static mockups so one can be chosen before the full site
-is built:
+Three visual directions were built as static mockups so one could be chosen before the full
+site is built. **Direction A, Skyline Noir, was chosen.** See
+[`docs/design-decision.md`](docs/design-decision.md). The full build (step 2) promotes it and
+removes the mockups.
 
 | Route | What it shows |
 | --- | --- |

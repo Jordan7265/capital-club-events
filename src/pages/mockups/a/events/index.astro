@@ -1,0 +1,71 @@
+---
+import LayoutA from '../../../../mockups/a/LayoutA.astro';
+import { upcomingEvents } from '../../../../data/events';
+import { dateParts, eventsByMonth, priceAmount, timeRange } from '../../../../lib/format';
+
+const base = '/mockups/a';
+---
+
+<LayoutA title="Upcoming Events — The Capital Club of Asheville" current="events">
+  <section class="a-band" aria-labelledby="a-events-title">
+    <div class="a-wrap">
+      <p class="a-eyebrow">Winter season · 2026–27</p>
+      <h1 class="a-display a-band__title" id="a-events-title">Upcoming <em>evenings</em></h1>
+      <p class="a-band__lede">
+        Benefits, tastings, live music and a New Year’s countdown — every one of them on the rooftop
+        at 82 Patton Avenue. Reserve online in a minute.
+      </p>
+    </div>
+  </section>
+
+  <div class="a-wrap" style="padding-bottom:clamp(4rem,8vw,7rem)">
+    {
+      eventsByMonth(upcomingEvents).map(({ month, year, events: list }) => (
+        <section aria-label={`${month} ${year}`}>
+          <div class="a-month">
+            <h2>{month} {year}</h2>
+          </div>
+          <ol class="a-program a-program--full">
+            {list.map((e) => {
+              const d = dateParts(e.start);
+              return (
+                <li class="a-row">
+                  <p class="a-row__date">
+                    <span class="a-row__day">{d.day}</span>
+                    <span class="a-row__month">{d.month} · {d.weekday}</span>
+                  </p>
+                  <img
+                    class="a-row__image"
+                    src={e.image.src}
+                    alt=""
+                    width={e.image.width}
+                    height={e.image.height}
+                    loading="lazy"
+                    style={e.image.position ? `object-position:${e.image.position}` : undefined}
+                  />
+                  <div>
+                    <p class="a-eyebrow">
+                      {e.kicker} {e.featured && <span class="a-badge">Next up</span>}
+                    </p>
+                    <h3 class="a-row__title">
+                      <a href={`${base}/events/${e.slug}`}>{e.title}</a>
+                    </h3>
+                    <p class="a-row__meta">{timeRange(e)} · {e.attire}</p>
+                    <p class="a-row__summary">{e.summary}</p>
+                  </div>
+                  <div class="a-row__aside">
+                    <span class="a-row__price">{priceAmount(e.price)}</span>
+                    <span class="a-row__per">per {e.price.per}</span>
+                    <a class="a-btn a-row__cta" href={`${base}/events/${e.slug}#reserve-form`}>
+                      Reserve<span class="visually-hidden"> for {e.title}</span>
+                    </a>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      ))
+    }
+  </div>
+</LayoutA>

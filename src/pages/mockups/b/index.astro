@@ -1,0 +1,171 @@
+---
+import LayoutB from '../../../mockups/b/LayoutB.astro';
+import Ornament from '../../../mockups/b/Ornament.astro';
+import { featuredEvent, upcomingEvents, venuePhotos } from '../../../data/events';
+import { dateParts, longDate, priceAmount, timeRange } from '../../../lib/format';
+
+const base = '/mockups/b';
+const lead = featuredEvent;
+const ld = dateParts(lead.start);
+const more = upcomingEvents.filter((e) => e.slug !== lead.slug).slice(0, 3);
+const later = upcomingEvents.filter((e) => e.slug !== lead.slug).slice(3);
+const plates = ['rooftop-wedding-party', 'rooftop-ceremony-setup', 'dining-room-mountain-windows', 'reception-dance-floor', 'rooftop-ceremony-kiss']
+  .map((k) => venuePhotos.find((p) => p.src.includes(k))!)
+  .filter(Boolean);
+const captions = [
+  'The wedding party on the terrace, the Blue Ridge behind.',
+  'Ceremony chairs set out on the rooftop.',
+  'Tables laid by the windows of the banquet room.',
+  'Late in the evening, on the dance floor.',
+  'A rooftop ceremony, concluded.',
+];
+---
+
+<LayoutB title="The Capital Club of Asheville — A Calendar of Rooftop Evenings" current="home">
+  <div class="b-front">
+    <article class="b-lead" aria-labelledby="b-lead-title">
+      <p class="b-kicker">The Benefit · {ld.weekdayLong}, {ld.monthLong} {ld.day}</p>
+      <h1 class="b-headline b-lead__headline" id="b-lead-title">
+        A Rooftop Benefit for Asheville’s Playgrounds
+      </h1>
+      <p class="b-deck">
+        Friends, families and neighbors gather above Patton Avenue to raise funds for renovating
+        children’s playgrounds across the Asheville area — with dinner by Mikasa Catering and a
+        live DJ until half past ten.
+      </p>
+      <p class="b-byline">
+        <span>{longDate(lead.start)}</span><span>{timeRange(lead)}</span><span>{lead.attire}</span>
+      </p>
+      <figure class="b-figure">
+        <img
+          src={lead.image.src}
+          alt={lead.image.alt}
+          width={lead.image.width}
+          height={lead.image.height}
+          style="aspect-ratio:16/10"
+          fetchpriority="high"
+        />
+        <figcaption><strong>The Terrace.</strong> Dusk on the rooftop, looking west toward the Blue Ridge.</figcaption>
+      </figure>
+      <div class="b-columns">
+        {lead.description.map((p, i) => <p class={i === 0 ? 'b-dropcap' : undefined}>{p}</p>)}
+      </div>
+    </article>
+
+    <aside class="b-sidebar" aria-label="The benefit at a glance">
+      <div class="b-glance">
+        <h2>At a Glance</h2>
+        <Ornament class="b-glance__orn" />
+        <dl class="b-particulars">
+          <div><dt>Date</dt><dd>{ld.weekday}., {ld.month}. {ld.day}</dd></div>
+          <div><dt>Hours</dt><dd>{timeRange(lead)}</dd></div>
+          <div><dt>Dinner</dt><dd>Mikasa Catering</dd></div>
+          <div><dt>Music</dt><dd>Live DJ</dd></div>
+          <div><dt>Dress</dt><dd>{lead.attire}</dd></div>
+        </dl>
+        <p class="b-glance__price">
+          <strong>{priceAmount(lead.price)}</strong>
+          <span>per person · {lead.price.note?.toLowerCase()}</span>
+        </p>
+        <a class="b-btn" href={`${base}/events/${lead.slug}#reply`}>Reserve a place</a>
+      </div>
+
+      <section class="b-index" aria-labelledby="b-later-title">
+        <h2 class="b-smallcaps" id="b-later-title">Later in the Season</h2>
+        <ol>
+          {
+            later.map((e) => {
+              const d = dateParts(e.start);
+              return (
+                <li>
+                  <time datetime={e.start}>
+                    {d.day}
+                    <small>{d.month}.</small>
+                  </time>
+                  <div>
+                    <a href={`${base}/events/${e.slug}`}>{e.title}</a>
+                    <p>{timeRange(e)} · {priceAmount(e.price)}</p>
+                  </div>
+                </li>
+              );
+            })
+          }
+        </ol>
+      </section>
+    </aside>
+  </div>
+
+  <section class="b-section" aria-labelledby="b-also-title">
+    <div class="b-section-head">
+      <h2 id="b-also-title">Also on the Calendar</h2>
+    </div>
+    <div class="b-three">
+      {
+        more.map((e) => {
+          const d = dateParts(e.start);
+          return (
+            <article>
+              <img src={e.image.src} alt={e.image.alt} width={e.image.width} height={e.image.height} loading="lazy" />
+              <p class="b-kicker">{e.kicker}</p>
+              <h3>
+                <a href={`${base}/events/${e.slug}`}>{e.title}</a>
+              </h3>
+              <p class="b-dateline">
+                {d.weekdayLong}, {d.monthLong} {d.day} · {timeRange(e)}
+              </p>
+              <p class="b-summary">{e.summary}</p>
+              <a class="b-more" href={`${base}/events/${e.slug}#reply`}>
+                Reserve · {priceAmount(e.price)}<span class="visually-hidden"> for {e.title}</span>
+              </a>
+            </article>
+          );
+        })
+      }
+    </div>
+    <p style="text-align:center;margin-top:2.5rem">
+      <a class="b-btn b-btn--ghost" href={`${base}/events`}>The full season of engagements</a>
+    </p>
+  </section>
+
+  <section class="b-section" aria-labelledby="b-venue-title">
+    <div class="b-section-head">
+      <h2 id="b-venue-title">About the Venue</h2>
+    </div>
+    <div class="b-quote">
+      <blockquote>Downtown at your feet, the Blue Ridge on every horizon.</blockquote>
+    </div>
+    <div class="b-venue">
+      <p class="b-dropcap">
+        The Capital Club of Asheville sits atop 82 Patton Avenue, in the heart of downtown. A
+        climate-controlled banquet room opens onto a wide, open-air terrace with views of the city
+        on one side and the mountains on the other — a setting that has hosted weddings, benefits
+        and celebrations for groups from fifteen to one hundred seventy-five.
+      </p>
+      <p>
+        Full bar service and a catering prep kitchen make long evenings easy, and the layouts are
+        as flexible as the guest list. When the last song plays, the whole of downtown is an
+        elevator ride away — for a nightcap, a stroll, or simply the long way home.
+      </p>
+      <figure class="b-figure">
+        <img src="/images/venue/building-exterior.webp" alt="The building at 82 Patton Avenue, downtown Asheville." width="380" height="552" loading="lazy" />
+        <figcaption><strong>82 Patton Ave.</strong> The club occupies the top of the building.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="b-section" id="photos" aria-labelledby="b-photos-title">
+    <div class="b-section-head">
+      <h2 id="b-photos-title">Plates from the Rooftop</h2>
+    </div>
+    <div class="b-plates">
+      {
+        plates.map((p, i) => (
+          <figure class="b-figure">
+            <img src={p.src} alt={p.alt} width={p.width} height={p.height} loading="lazy" />
+            <figcaption><strong>Plate {['I', 'II', 'III', 'IV', 'V'][i]}.</strong> {captions[i]}</figcaption>
+          </figure>
+        ))
+      }
+    </div>
+  </section>
+</LayoutB>

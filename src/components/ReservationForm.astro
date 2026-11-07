@@ -1,0 +1,208 @@
+---
+/**
+ * Mock reservation form. Purely client-side: validation, a ~1s "Submitting…" state and a
+ * confirmation panel with a fake code. It never makes a network request, and without
+ * JavaScript the submit button stays disabled so nothing can be sent.
+ *
+ * Structure is shared; each visual direction themes it through the `rf--{variant}` class.
+ */
+import type { VenueEvent } from '../data/events';
+import { confirmationStem, longDate, priceAmount, timeRange } from '../lib/format';
+
+interface Props {
+  event: VenueEvent;
+  variant: string;
+  guestControl?: 'select' | 'stepper';
+  submitLabel?: string;
+  id?: string;
+}
+
+const {
+  event,
+  variant,
+  guestControl = 'select',
+  submitLabel = 'Reserve my spot',
+  id = 'reserve',
+} = Astro.props;
+
+const f = (name: string) => `${id}-${name}`;
+const guestOptions = Array.from({ length: 10 }, (_, i) => i + 1);
+const defaultGuests = 2;
+const perLabel = event.price.per === 'couple' ? 'per couple' : 'per guest';
+---
+
+<div
+  class={`rf rf--${variant}`}
+  data-mock-reservation
+  data-event-title={event.title}
+  data-code-stem={confirmationStem(event.start)}
+  data-price-amount={event.price.amount}
+  data-price-per={event.price.per}
+>
+  <form class="rf__form" novalidate data-rf-form aria-labelledby={f('title')}>
+    <slot name="intro" />
+    <p class="visually-hidden" id={f('title')}>Reserve for {event.title}</p>
+
+    <div class="rf__field rf__field--name">
+      <label class="rf__label" for={f('name')}>Full name</label>
+      <input
+        class="rf__input"
+        id={f('name')}
+        name="name"
+        type="text"
+        autocomplete="name"
+        required
+        aria-describedby={f('name-error')}
+      />
+      <p class="rf__error" id={f('name-error')} data-error-for="name"></p>
+    </div>
+
+    <div class="rf__field rf__field--email">
+      <label class="rf__label" for={f('email')}>Email</label>
+      <input
+        class="rf__input"
+        id={f('email')}
+        name="email"
+        type="email"
+        autocomplete="email"
+        inputmode="email"
+        required
+        aria-describedby={f('email-error')}
+      />
+      <p class="rf__error" id={f('email-error')} data-error-for="email"></p>
+    </div>
+
+    <div class="rf__field rf__field--phone">
+      <label class="rf__label" for={f('phone')}>Phone <span class="rf__optional">(optional)</span></label>
+      <input
+        class="rf__input"
+        id={f('phone')}
+        name="phone"
+        type="tel"
+        autocomplete="tel"
+        inputmode="tel"
+        aria-describedby={f('phone-error')}
+      />
+      <p class="rf__error" id={f('phone-error')} data-error-for="phone"></p>
+    </div>
+
+    <div class="rf__field rf__field--guests">
+      <label class="rf__label" for={f('guests')}>Number of guests</label>
+      {
+        guestControl === 'stepper' ? (
+          <div class="rf__stepper">
+            <button
+              type="button"
+              class="rf__step"
+              data-rf-step="-1"
+              aria-controls={f('guests')}
+              aria-label="Remove a guest"
+            >
+              <span aria-hidden="true">−</span>
+            </button>
+            <input
+              class="rf__input rf__input--guests"
+              id={f('guests')}
+              name="guests"
+              type="number"
+              min="1"
+              max="10"
+              step="1"
+              inputmode="numeric"
+              value={defaultGuests}
+              required
+              aria-describedby={f('guests-error')}
+            />
+            <button
+              type="button"
+              class="rf__step"
+              data-rf-step="1"
+              aria-controls={f('guests')}
+              aria-label="Add a guest"
+            >
+              <span aria-hidden="true">+</span>
+            </button>
+          </div>
+        ) : (
+          <select
+            class="rf__input rf__select"
+            id={f('guests')}
+            name="guests"
+            required
+            aria-describedby={f('guests-error')}
+          >
+            {guestOptions.map((n) => (
+              <option value={n} selected={n === defaultGuests}>
+                {n} {n === 1 ? 'guest' : 'guests'}
+              </option>
+            ))}
+          </select>
+        )
+      }
+      <p class="rf__error" id={f('guests-error')} data-error-for="guests"></p>
+    </div>
+
+    <div class="rf__field rf__field--notes">
+      <label class="rf__label" for={f('notes')}>
+        Dietary notes <span class="rf__optional">(optional)</span>
+      </label>
+      <textarea
+        class="rf__input rf__textarea"
+        id={f('notes')}
+        name="notes"
+        rows="3"
+        maxlength="500"
+        aria-describedby={f('notes-error')}></textarea>
+      <p class="rf__error" id={f('notes-error')} data-error-for="notes"></p>
+    </div>
+
+    <div class="rf__footer">
+      <p class="rf__total">
+        <span class="rf__total-label">Estimated total</span>
+        <output class="rf__total-value" data-rf-total for={f('guests')}>
+          {priceAmount(event.price)} {perLabel}
+        </output>
+      </p>
+      <button type="submit" class="rf__submit" data-rf-submit disabled>
+        <span data-rf-submit-label>{submitLabel}</span>
+      </button>
+    </div>
+
+    <p class="rf__status visually-hidden" role="status" aria-live="polite" data-rf-status></p>
+    <noscript>
+      <p class="rf__noscript">
+        Reservations on this page need JavaScript. Nothing you type here is sent anywhere.
+      </p>
+    </noscript>
+  </form>
+
+  <div class="rf__confirmation" data-rf-confirmation hidden>
+    <p class="rf__confirm-kicker">Reservation received</p>
+    <h3 class="rf__confirm-title" tabindex="-1" data-rf-confirm-heading>You’re on the list!</h3>
+    <p class="rf__confirm-lede" data-rf-greeting>We’ve saved your spot.</p>
+    <dl class="rf__confirm-details">
+      <div>
+        <dt>Confirmation</dt>
+        <dd class="rf__code" data-rf-code></dd>
+      </div>
+      <div>
+        <dt>Event</dt>
+        <dd>{event.title}</dd>
+      </div>
+      <div>
+        <dt>Date</dt>
+        <dd>{longDate(event.start)} · {timeRange(event)}</dd>
+      </div>
+      <div>
+        <dt>Guests</dt>
+        <dd data-rf-guests></dd>
+      </div>
+    </dl>
+    <button type="button" class="rf__again" data-rf-reset>Make another reservation</button>
+  </div>
+</div>
+
+<script>
+  import { initMockReservations } from '../scripts/reservation-form';
+  initMockReservations();
+</script>

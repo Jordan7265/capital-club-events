@@ -1,0 +1,27 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+.astro/
+.vercel/
+
+# local env
+.env
+.env.*
+
+# logs
+npm-debug.log*
+
+# macOS
+.DS_Store
+
+# Mission Control / harness run artifacts (never commit)
+.pipeline/
+.evidence/
+report.html
+**/report.html
+
+# Playwright output
+test-results/
+playwright-report/

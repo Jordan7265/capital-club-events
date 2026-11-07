@@ -1,0 +1,88 @@
+---
+import '@fontsource/libre-caslon-display/400.css';
+import '@fontsource-variable/newsreader/opsz.css';
+import '@fontsource-variable/newsreader/opsz-italic.css';
+import './b.css';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MockupBar from '../../components/MockupBar.astro';
+import { venue } from '../../data/events';
+
+interface Props {
+  title: string;
+  current: 'home' | 'events' | 'event';
+  description?: string;
+  compact?: boolean;
+}
+const { title, current, description, compact = false } = Astro.props;
+const base = '/mockups/b';
+const nav = [
+  { label: 'Upcoming Events', href: `${base}/events`, key: 'events' },
+  { label: 'Photos', href: `${base}#photos`, key: 'photos' },
+  { label: 'Contact', href: '#contact', key: 'contact' },
+];
+---
+
+<BaseLayout title={title} description={description} bodyClass="dir-b" themeColor="#f5f0e6">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <MockupBar dir="b" current={current} />
+  <div class="b-paper">
+    <header class:list={['b-masthead', { 'b-masthead--compact': compact }]}>
+      <div class="b-masthead__top">
+        <p>Winter Season · 2026–27</p>
+        <a class="b-masthead__seal" href={base} aria-label={`${venue.name} — home`}>
+          <img src="/images/venue/logo.png" alt="" width="392" height="380" />
+        </a>
+        <p>{venue.street} · Asheville, N.C.</p>
+      </div>
+      <a class="b-masthead__title" href={base} tabindex="-1" aria-hidden="true">The Capital Club</a>
+      <p class="b-masthead__sub"><span>A Calendar of Rooftop Evenings</span></p>
+      <nav class="b-nav" aria-label="Main">
+        <ul>
+          {
+            nav.map((item) => (
+              <li>
+                <a href={item.href} aria-current={item.key === current ? 'page' : undefined}>
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+
+    <footer class="b-footer" id="contact">
+      <div class="b-footer__rule" aria-hidden="true"></div>
+      <div class="b-footer__grid">
+        <div>
+          <h2 class="b-smallcaps">Address</h2>
+          <address>
+            {venue.name}<br />
+            {venue.street}, {venue.city}, {venue.region} {venue.postalCode}
+          </address>
+          <a class="b-link" href={venue.mapHref} target="_blank" rel="noopener">
+            Directions<span class="visually-hidden"> (opens in a new tab)</span>
+          </a>
+        </div>
+        <div class="b-footer__center">
+          <img src="/images/venue/logo.png" alt={venue.name} width="392" height="380" loading="lazy" />
+        </div>
+        <div>
+          <h2 class="b-smallcaps">Telephone</h2>
+          <p><a class="b-link" href={venue.phoneHref}>{venue.phone}</a></p>
+          <p class="b-footer__muted">Event office hours by appointment</p>
+        </div>
+      </div>
+      <nav class="b-footer__nav" aria-label="Footer">
+        {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+      </nav>
+      <p class="b-footer__demo">
+        © 2026 {venue.name}. <em>Demonstration site — reservations and messages are not processed.</em>
+      </p>
+    </footer>
+  </div>
+</BaseLayout>

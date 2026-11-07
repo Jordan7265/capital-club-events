@@ -1,0 +1,60 @@
+---
+/** Two strands of café lights drawn as quadratic curves, bulbs twinkling on a stagger. */
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+
+const W = 1440;
+type Strand = { p0: [number, number]; p1: [number, number]; p2: [number, number]; n: number; r: number };
+const strands: Strand[] = [
+  { p0: [-20, 4], p1: [720, 150], p2: [1460, 4], n: 22, r: 3.6 },
+  { p0: [-20, 40], p1: [520, 190], p2: [1460, 26], n: 16, r: 2.6 },
+];
+const at = (s: Strand, t: number) => {
+  const u = 1 - t;
+  return [
+    u * u * s.p0[0] + 2 * u * t * s.p1[0] + t * t * s.p2[0],
+    u * u * s.p0[1] + 2 * u * t * s.p1[1] + t * t * s.p2[1],
+  ] as const;
+};
+const bulbs = strands.flatMap((s, si) =>
+  Array.from({ length: s.n }, (_, i) => {
+    const [x, y] = at(s, (i + 0.5) / s.n);
+    return { x: x.toFixed(1), y: (y + 9).toFixed(1), wx: x.toFixed(1), wy: y.toFixed(1), r: s.r, d: ((i * 0.37 + si * 0.9) % 3.4).toFixed(2) };
+  }),
+);
+---
+
+<svg
+  class:list={['a-lights', className]}
+  viewBox={`0 0 ${W} 240`}
+  preserveAspectRatio="xMidYMin slice"
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <radialGradient id="a-bulb" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#fff6dd"></stop>
+      <stop offset="45%" stop-color="#ffd98f"></stop>
+      <stop offset="100%" stop-color="#ffb347" stop-opacity="0"></stop>
+    </radialGradient>
+  </defs>
+  {
+    strands.map((s) => (
+      <path
+        class="a-lights__wire"
+        d={`M${s.p0[0]} ${s.p0[1]} Q${s.p1[0]} ${s.p1[1]} ${s.p2[0]} ${s.p2[1]}`}
+      />
+    ))
+  }
+  {
+    bulbs.map((b) => (
+      <g class="a-lights__bulb" style={`--d:${b.d}s`}>
+        <line x1={b.wx} y1={b.wy} x2={b.x} y2={b.y} class="a-lights__drop" />
+        <circle cx={b.x} cy={b.y} r={b.r * 3.4} fill="url(#a-bulb)" class="a-lights__halo" />
+        <circle cx={b.x} cy={b.y} r={b.r} class="a-lights__core" />
+      </g>
+    ))
+  }
+</svg>

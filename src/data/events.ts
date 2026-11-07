@@ -69,13 +69,13 @@ export const events: VenueEvent[] = [
     slug: 'playgrounds-for-asheville-rooftop-benefit',
     title: 'Playgrounds for Asheville — Rooftop Benefit',
     kicker: 'Rooftop Benefit',
-    start: '2026-11-14T18:30:00-05:00',
-    end: '2026-11-14T22:30:00-05:00',
+    start: '2026-11-14T16:30:00-05:00',
+    end: '2026-11-14T20:30:00-05:00',
     summary:
-      'An evening above downtown to raise funds for renovating children’s playgrounds across the Asheville area, with dinner by Mikasa Catering and a live DJ under the lights.',
+      'Doors open at 4:30 for a sunset cocktail hour, then an evening above downtown raising funds to renovate children’s playgrounds across the Asheville area, with dinner by Mikasa Catering and a live DJ.',
     description: [
       'Every neighborhood deserves a place where kids can climb, swing and run until the streetlights come on. Playgrounds for Asheville brings friends, families and local businesses together on the rooftop to help renovate children’s playgrounds across the Asheville area.',
-      'Arrive as the sun drops behind the Blue Ridge and settle in for a cocktail-hour reception, a spread from Mikasa Catering, and a live DJ carrying the night from golden hour to the city lights.',
+      'We start at 4:30 so you can watch the sunset over the Blue Ridge with a cocktail hour on the terrace. Then settle in for a spread from Mikasa Catering and a live DJ carrying the night from golden hour to the city lights.',
       'Proceeds from every ticket go toward playground renovation projects in the Asheville area.',
     ],
     catering: 'Mikasa Catering: passed bites and a chef-attended dinner spread',

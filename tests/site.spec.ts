@@ -11,7 +11,7 @@ const EVENTS = [
     slug: 'playgrounds-for-asheville-rooftop-benefit',
     title: 'Playgrounds for Asheville \u2014 Rooftop Benefit',
     date: 'Saturday, November 14, 2026',
-    time: '6:30 – 10:30 PM',
+    time: '4:30 – 8:30 PM',
     price: '$125',
     per: 'person',
     attire: 'Cocktail or dressy casual',
@@ -135,7 +135,7 @@ test('home: hero CTA to events, Nov 14 spotlight, three more upcoming events, ve
 
   const spotlight = page.locator('section', { has: page.locator('#spotlight-title') });
   await expect(spotlight.getByRole('heading', { level: 2 })).toHaveText(FEATURED.title);
-  for (const text of ['Saturday, November 14, 2026', '6:30 – 10:30 PM', 'Mikasa Catering', 'Live DJ', 'Cocktail or dressy casual', '$125', 'playgrounds']) {
+  for (const text of ['Saturday, November 14, 2026', '4:30 – 8:30 PM', 'Mikasa Catering', 'Live DJ', 'Cocktail or dressy casual', '$125', 'playgrounds']) {
     await expect(spotlight.getByText(text, { exact: false }).first(), text).toBeVisible();
   }
   await expect(spotlight.getByRole('link', { name: /Reserve your place/ })).toHaveAttribute('href', `/events/${FEATURED.slug}`);
@@ -186,6 +186,7 @@ test('Nov 14 benefit states its purpose, caterer, DJ and attire', async ({ page 
   const main = page.locator('main');
   await expect(main.locator('.cc-benefit')).toContainText('Renovating children’s playgrounds across the Asheville area');
   await expect(main.locator('.cc-prose')).toContainText('renovate children’s playgrounds across the Asheville area');
+  await expect(main.locator('.cc-prose')).toContainText('We start at 4:30 so you can watch the sunset over the Blue Ridge with a cocktail hour');
   const dd = (label: string) => main.locator('.cc-ticket dl > div', { has: page.locator('dt', { hasText: new RegExp(`^${label}$`) }) }).locator('dd');
   await expect(dd('Catering')).toContainText('Mikasa Catering');
   await expect(dd('Entertainment')).toContainText('Live DJ');
@@ -252,7 +253,8 @@ for (const width of [1440, 390]) {
     await expect(confirmation.getByRole('heading', { name: 'You’re on the list!' })).toBeFocused();
     await expect(confirmation.locator('[data-fill="code"]')).toHaveText(/^CC-1114-[0-9A-F]{4}$/);
     await expect(confirmation).toContainText(FEATURED.title);
-    await expect(confirmation).toContainText('Saturday, November 14, 2026 · 6:30 – 10:30 PM');
+    await expect(confirmation).toContainText('Saturday, November 14, 2026 · 4:30 – 8:30 PM');
+    await expect(confirmation.locator('[data-fill="emailNote"]')).toHaveText('Check your email at avery@example.com for your confirmation.');
     await expect(confirmation.locator('[data-fill="guests"]')).toHaveText('3 guests');
     await expect(confirmation).toContainText('Thank you, Avery');
     await expect(form.locator('form')).toBeHidden();

@@ -1437,6 +1437,12 @@
   color: #d8d0c3;
 }
 
+.mf__confirm-note {
+  margin-top: 0.5rem;
+  color: var(--gold);
+  overflow-wrap: anywhere;
+}
+
 .mf__confirm-details {
   display: grid;
   gap: 0.9rem;

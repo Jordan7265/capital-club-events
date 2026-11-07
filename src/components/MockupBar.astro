@@ -1,0 +1,106 @@
+---
+/**
+ * Thin, neutral review strip shown above every mockup page so the operator can move
+ * between the three pages of a direction and back to the comparison index.
+ * Removed with the mockups once a direction is chosen.
+ */
+import { featuredEvent } from '../data/events';
+import { directions } from '../mockups/directions';
+
+interface Props {
+  dir: 'a' | 'b' | 'c';
+  current: 'home' | 'events' | 'event';
+}
+
+const { dir, current } = Astro.props;
+const name = directions.find((d) => d.id === dir)?.name ?? '';
+const base = `/mockups/${dir}`;
+const links = [
+  { key: 'home', label: 'Home', href: base },
+  { key: 'events', label: 'Events', href: `${base}/events` },
+  { key: 'event', label: 'Nov 14 event', href: `${base}/events/${featuredEvent.slug}` },
+] as const;
+---
+
+<nav class="mockbar" aria-label="Mockup review">
+  <a class="mockbar__back" href="/mockups">
+    <span aria-hidden="true">←</span> All directions
+  </a>
+  <p class="mockbar__name">
+    <span class="mockbar__dir">Direction {dir.toUpperCase()}</span>
+    <span class="mockbar__sep" aria-hidden="true">·</span>
+    {name}
+  </p>
+  <ul class="mockbar__links">
+    {
+      links.map((l) => (
+        <li>
+          <a href={l.href} aria-current={l.key === current ? 'page' : undefined}>
+            {l.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  .mockbar {
+    position: relative;
+    z-index: 60;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 1.25rem;
+    padding: 0.5rem clamp(1rem, 3vw, 2rem);
+    background: #f2f1ee;
+    color: #222;
+    border-bottom: 1px solid #d8d6d0;
+    font: 500 0.78rem/1.3 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    letter-spacing: 0.01em;
+  }
+  .mockbar a {
+    color: inherit;
+    text-decoration: none;
+    border-radius: 999px;
+    padding: 0.2rem 0.6rem;
+  }
+  .mockbar a:hover {
+    background: #e2e0da;
+  }
+  .mockbar a:focus-visible {
+    outline: 2px solid #1a56db;
+    outline-offset: 2px;
+  }
+  .mockbar__back {
+    font-weight: 600;
+  }
+  .mockbar__name {
+    margin: 0;
+    color: #555;
+  }
+  .mockbar__dir {
+    color: #111;
+    font-weight: 700;
+  }
+  .mockbar__sep {
+    margin: 0 0.2rem;
+  }
+  .mockbar__links {
+    display: flex;
+    gap: 0.25rem;
+    margin: 0 0 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+  .mockbar__links a[aria-current='page'] {
+    background: #222;
+    color: #fff;
+  }
+  @media (max-width: 640px) {
+    .mockbar__links {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+</style>

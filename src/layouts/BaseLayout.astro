@@ -1,0 +1,39 @@
+---
+/**
+ * Shared document shell for every route. It carries the site-wide noindex robots meta
+ * (layer 2 of 3; the others are the X-Robots-Tag header in vercel.json and public/robots.txt).
+ */
+import '../styles/base.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  bodyClass?: string;
+  themeColor?: string;
+}
+
+const {
+  title,
+  description = 'Upcoming events at The Capital Club of Asheville, a rooftop venue in downtown Asheville, NC.',
+  bodyClass,
+  themeColor = '#111111',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content={themeColor} />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <slot />
+  </body>
+</html>

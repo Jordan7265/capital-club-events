@@ -1,0 +1,390 @@
+---
+/**
+ * Comparison board for the three visual directions. Each column shows a live, scaled
+ * preview of that direction's homepage, its palette and type pairing, and links to all
+ * three mockup pages.
+ */
+import '@fontsource-variable/bodoni-moda/opsz.css';
+import '@fontsource-variable/bodoni-moda/opsz-italic.css';
+import '@fontsource/libre-caslon-display/400.css';
+import '@fontsource-variable/bricolage-grotesque/standard.css';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { featuredEvent } from '../../data/events';
+import { directions } from '../../mockups/directions';
+
+const specimenFont: Record<string, string> = {
+  a: "'Bodoni Moda Variable', serif",
+  b: "'Libre Caslon Display', serif",
+  c: "'Bricolage Grotesque Variable', sans-serif",
+};
+---
+
+<BaseLayout title="Design directions — Capital Club Events" bodyClass="board" themeColor="#161616">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <main id="main" class="board__main" tabindex="-1">
+    <header class="board__head">
+      <img src="/images/venue/logo.png" alt="The Capital Club of Asheville" width="392" height="380" />
+      <div>
+        <p class="board__eyebrow">Capital Club Events · Demo site · Design review</p>
+        <h1>Three directions, one rooftop.</h1>
+        <p class="board__lede">
+          Each direction includes a <strong>homepage</strong>, the <strong>events list</strong>, and the{' '}
+          <strong>Nov 14 “Playgrounds for Asheville” event page</strong>, with a working mock reservation
+          form. Nothing you type is sent anywhere. Choose one, or mix and match. The full site is built in
+          the direction you pick.
+        </p>
+      </div>
+    </header>
+
+    <ol class="board__grid">
+      {
+        directions.map((d) => (
+          <li class="dir" style={`--accent:${d.accent};--specimen:${specimenFont[d.id]}`}>
+            <a class="dir__preview" href={`/mockups/${d.id}`} aria-label={`Open direction ${d.id.toUpperCase()}, ${d.name}, homepage`}>
+              <span class="dir__frame" inert>
+                <iframe
+                  src={`/mockups/${d.id}`}
+                  title={`Preview of direction ${d.id.toUpperCase()} homepage`}
+                  loading="lazy"
+                  tabindex="-1"
+                  aria-hidden="true"
+                  scrolling="no"
+                />
+              </span>
+            </a>
+            <div class="dir__body">
+              <p class="dir__letter" aria-hidden="true">{d.id.toUpperCase()}</p>
+              <h2 class="dir__name">
+                <span class="visually-hidden">Direction {d.id.toUpperCase()}: </span>
+                {d.name}
+              </h2>
+              <p class="dir__one">{d.oneLiner}</p>
+
+              <ul class="dir__swatches" aria-label="Palette">
+                {d.palette.map((c) => (
+                  <li>
+                    <span class="dir__chip" style={`background:${c.hex}`} />
+                    <span class="dir__hex">
+                      {c.name}
+                      <br />
+                      <code>{c.hex}</code>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              <div class="dir__type">
+                <span class="dir__aa" aria-hidden="true">Aa</span>
+                <p>
+                  <strong>{d.fonts.display}</strong> display
+                  <br />
+                  <strong>{d.fonts.body}</strong> text
+                </p>
+              </div>
+
+              <ul class="dir__moves">
+                {d.moves.map((m) => <li>{m}</li>)}
+              </ul>
+
+              <nav class="dir__links" aria-label={`Direction ${d.id.toUpperCase()} pages`}>
+                <a href={`/mockups/${d.id}`}>Homepage</a>
+                <a href={`/mockups/${d.id}/events`}>Events list</a>
+                <a href={`/mockups/${d.id}/events/${featuredEvent.slug}`}>Nov 14 event + form</a>
+              </nav>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <footer class="board__foot">
+      <p>
+        Mockups use real venue photography from capitalclubavl.com. Every page is marked noindex, and the
+        mockups are removed once a direction is chosen.
+      </p>
+      <p>Demonstration site — reservations and messages are not processed.</p>
+    </footer>
+  </main>
+</BaseLayout>
+
+<style is:global>
+  .board {
+    --bg: #161616;
+    --panel: #1f1f1f;
+    --line: #2f2f2f;
+    --text: #f2f0ec;
+    --muted: #a8a49c;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(214, 178, 116, 0.12), transparent 70%),
+      var(--bg);
+    color: var(--text);
+    font: 400 1rem/1.6 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+
+  .board :focus-visible {
+    outline: 2px solid #ffd99a;
+    outline-offset: 3px;
+  }
+
+  .board__main {
+    width: min(100% - 2.5rem, 1440px);
+    margin: 0 auto;
+    padding: clamp(2rem, 5vw, 4rem) 0 3rem;
+  }
+
+  .board__main:focus {
+    outline: none;
+  }
+
+  .board__head {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    align-items: start;
+    max-width: 62rem;
+  }
+
+  .board__head img {
+    width: clamp(56px, 7vw, 88px);
+    height: auto;
+  }
+
+  .board__eyebrow {
+    margin: 0 0 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #d6b274;
+  }
+
+  .board__head h1 {
+    margin: 0;
+    font-family: 'Bodoni Moda Variable', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(2.4rem, 5.5vw, 4.5rem);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+
+  .board__lede {
+    max-width: 48rem;
+    margin: 1.25rem 0 0;
+    color: #cfcbc3;
+    font-size: 1.05rem;
+  }
+
+  .board__lede strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .board__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 2vw, 1.75rem);
+    margin: clamp(2.5rem, 5vw, 3.5rem) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .dir {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--panel);
+    overflow: hidden;
+    transition: border-color 0.25s ease, transform 0.25s ease;
+  }
+
+  .dir:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+  }
+
+  .dir__preview {
+    display: block;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .dir__frame {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 11;
+    overflow: hidden;
+    background: #0e0e0e;
+  }
+
+  .dir__frame iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 400%;
+    height: 400%;
+    border: 0;
+    transform: scale(0.25);
+    transform-origin: 0 0;
+    pointer-events: none;
+  }
+
+  .dir__body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    flex: 1;
+    padding: 1.5rem 1.5rem 1.6rem;
+  }
+
+  .dir__letter {
+    position: absolute;
+    top: -2.1rem;
+    right: 1.25rem;
+    display: grid;
+    place-items: center;
+    width: 3.6rem;
+    height: 3.6rem;
+    margin: 0;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #111;
+    font-family: var(--specimen);
+    font-size: 1.7rem;
+    font-weight: 700;
+    box-shadow: 0 0 0 5px var(--panel);
+  }
+
+  .dir__name {
+    margin: 0;
+    font-family: var(--specimen);
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 1.05;
+  }
+
+  .dir__one {
+    margin: 0;
+    color: #cfcbc3;
+  }
+
+  .dir__swatches {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .dir__chip {
+    display: block;
+    aspect-ratio: 1;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .dir__hex {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.68rem;
+    line-height: 1.3;
+    color: var(--muted);
+  }
+
+  .dir__hex code {
+    font-size: 0.66rem;
+  }
+
+  .dir__type {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .dir__aa {
+    font-family: var(--specimen);
+    font-size: 2.6rem;
+    line-height: 1;
+  }
+
+  .dir__type p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+
+  .dir__type strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .dir__moves {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: #cfcbc3;
+    font-size: 0.92rem;
+  }
+
+  .dir__moves li + li {
+    margin-top: 0.35rem;
+  }
+
+  .dir__moves li::marker {
+    color: var(--accent);
+  }
+
+  .dir__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  .dir__links a {
+    padding: 0.5rem 0.85rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--text);
+    font-size: 0.86rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .dir__links a:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #111;
+  }
+
+  .board__foot {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+
+  .board__foot p {
+    margin: 0.25rem 0;
+  }
+
+  @media (max-width: 1100px) {
+    .board__grid {
+      grid-template-columns: 1fr;
+      max-width: 40rem;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .board__head {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

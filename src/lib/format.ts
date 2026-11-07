@@ -44,15 +44,6 @@ export function timeRange(event: Pick<VenueEvent, 'start' | 'end'>): string {
   return `${fmt(s)} ${s.dayPeriod} – ${fmt(e)} ${e.dayPeriod}`;
 }
 
-/** 1 → "1st", 14 → "14th", 22 → "22nd" */
-export function ordinal(n: number | string): string {
-  const v = Number(n);
-  const mod100 = v % 100;
-  const suffix =
-    mod100 >= 11 && mod100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[v % 10] ?? 'th';
-  return `${v}${suffix}`;
-}
-
 /** "$125" */
 export function priceAmount(price: EventPrice): string {
   return `$${price.amount}`;

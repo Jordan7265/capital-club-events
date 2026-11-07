@@ -1,16 +1,155 @@
 ---
-/** Temporary holding page while a visual direction is chosen; replaced by the real homepage in the full build. */
-import '@fontsource-variable/bodoni-moda/opsz.css';
-import '../styles/holding.css';
-import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import StringLights from '../components/StringLights.astro';
+import EventRow from '../components/EventRow.astro';
+import { featuredEvent, upcomingEvents, venuePhotos } from '../data/events';
+import { dateParts, longDate, priceAmount, timeRange } from '../lib/format';
+
+const next = featuredEvent;
+const nextParts = dateParts(next.start);
+const [nextMain, nextSub] = next.title.split(' — ');
+const more = upcomingEvents.filter((e) => e.slug !== next.slug).slice(0, 3);
+const strip = [
+  'rooftop-ceremony-mountain-view',
+  'reception-dance-floor',
+  'rooftop-wedding-party',
+  'dining-room-mountain-windows',
+  'dinner-toast',
+  'rooftop-ceremony-setup',
+  'ballroom-evening-dinner',
+].map((key) => venuePhotos.find((p) => p.src.includes(key))!);
 ---
 
-<BaseLayout title="The Capital Club of Asheville — Events (preview)" bodyClass="holding">
-  <main id="main" tabindex="-1">
-    <img src="/images/venue/logo.png" alt="The Capital Club of Asheville" width="392" height="380" />
-    <h1>Rooftop events at The Capital Club</h1>
-    <p>The events site is in design review. Three visual directions are ready to compare.</p>
-    <a class="holding__cta" href="/mockups">View the design directions →</a>
-    <small>Demonstration site — reservations and messages are not processed.</small>
-  </main>
-</BaseLayout>
+<SiteLayout title="The Capital Club of Asheville — Rooftop Events" current="home">
+  <section class="cc-hero" aria-labelledby="hero-title">
+    <div class="cc-hero__media">
+      <img
+        src="/images/venue/rooftop-dusk-string-lights.webp"
+        alt="Guests on the Capital Club rooftop terrace at dusk, the sun setting behind the mountains."
+        width="1632"
+        height="1224"
+        fetchpriority="high"
+      />
+    </div>
+    <StringLights />
+    <div class="cc-wrap cc-hero__content">
+      <p class="cc-eyebrow cc-hero__eyebrow cc-reveal" style="--i:0">Rooftop events · 82 Patton Ave</p>
+      <h1 class="cc-display cc-hero__title" id="hero-title">
+        <span class="cc-reveal" style="--i:1">Evenings</span>
+        <span class="cc-reveal" style="--i:2">above <em>Asheville</em></span>
+      </h1>
+      <p class="cc-hero__lede cc-reveal" style="--i:3">
+        Benefits, tastings and late nights on the rooftop at The Capital Club — downtown at your feet,
+        the Blue Ridge on every horizon.
+      </p>
+      <div class="cc-hero__actions cc-reveal" style="--i:4">
+        <a class="cc-btn cc-btn--solid" href="/events">
+          See upcoming events <span class="cc-btn__arrow" aria-hidden="true">→</span>
+        </a>
+        <a class="cc-btn" href={`/events/${next.slug}`}>Reserve for {nextParts.month} {nextParts.day}</a>
+      </div>
+      <p class="cc-ticker cc-reveal" style="--i:5">
+        <span class="cc-eyebrow">Next on the rooftop</span>{' '}
+        <span>{nextParts.weekday} · {nextParts.month} {nextParts.day}</span>{' '}
+        <a href={`/events/${next.slug}`}>{next.title}</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="cc-section" aria-labelledby="spotlight-title">
+    <div class="cc-wrap cc-spotlight">
+      <figure class="cc-frame">
+        <img
+          src="/images/venue/rooftop-ceremony-mountain-view.webp"
+          alt="Guests seated on the rooftop terrace with the Blue Ridge Mountains beyond."
+          width="960"
+          height="720"
+          loading="lazy"
+        />
+        <span class="cc-frame__numeral" aria-hidden="true">{nextParts.day}</span>
+      </figure>
+      <div>
+        <p class="cc-eyebrow">The next evening · {next.kicker}</p>
+        <h2 class="cc-display cc-spotlight__title" id="spotlight-title">
+          {nextMain}{nextSub && ' '}{nextSub && <em>—&nbsp;{nextSub}</em>}
+        </h2>
+        <p class="cc-spotlight__summary">{next.summary}</p>
+        <dl class="cc-facts">
+          <div><dt>When</dt><dd>{longDate(next.start)}<br />{timeRange(next)}</dd></div>
+          <div><dt>Catering</dt><dd>{next.highlights.catering}</dd></div>
+          <div><dt>Entertainment</dt><dd>{next.highlights.entertainment}</dd></div>
+          <div><dt>Attire</dt><dd>{next.attire}</dd></div>
+        </dl>
+        <p class="cc-price">
+          <strong>{priceAmount(next.price)}</strong>{' '}
+          <span>per {next.price.per}{next.price.note && ` · ${next.price.note}`}</span>
+        </p>
+        <a class="cc-btn cc-btn--solid" href={`/events/${next.slug}`}>
+          Reserve your place <span class="cc-btn__arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="cc-section cc-section--flush" aria-labelledby="calendar-title">
+    <div class="cc-wrap">
+      <div class="cc-section__head">
+        <div>
+          <p class="cc-eyebrow">On the calendar</p>
+          <h2 class="cc-display cc-section__title" id="calendar-title">Also <em>this season</em></h2>
+        </div>
+        <a class="cc-link" href="/events">View all events</a>
+      </div>
+      <ol class="cc-program">
+        {more.map((e) => <EventRow event={e} />)}
+      </ol>
+    </div>
+  </section>
+
+  <section class="cc-section cc-section--panel" aria-labelledby="venue-title">
+    <div class="cc-wrap cc-venue">
+      <div class="cc-venue__photos">
+        <img src="/images/venue/building-exterior.webp" alt="The building at 82 Patton Avenue in downtown Asheville." width="380" height="552" loading="lazy" />
+        <img src="/images/venue/rooftop-terrace-sunny.webp" alt="The open rooftop terrace with long views of the mountains." width="900" height="675" loading="lazy" />
+      </div>
+      <div class="cc-venue__text">
+        <p class="cc-eyebrow">The venue</p>
+        <h2 class="cc-display cc-section__title" id="venue-title">
+          A rooftop in the <em>heart of downtown</em>
+        </h2>
+        <p>
+          The Capital Club of Asheville pairs a climate-controlled banquet room with a wide, open-air
+          terrace — city lights on one side, the Blue Ridge Mountains on the other.
+        </p>
+        <p>
+          With full bar service and a catering prep kitchen on site, it’s built for evenings that
+          start at golden hour and end with a nightcap downtown, just an elevator ride away.
+        </p>
+        <div class="cc-stats">
+          <div><strong>15–175</strong> <span>Guests</span></div>
+          <div><strong>2</strong> <span>Indoor &amp; terrace</span></div>
+          <div><strong>360°</strong> <span>City &amp; mountains</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cc-section" aria-labelledby="photos-title">
+    <div class="cc-wrap cc-section__head">
+      <div>
+        <p class="cc-eyebrow">Photos</p>
+        <h2 class="cc-display cc-section__title" id="photos-title">Seen <em>from up here</em></h2>
+      </div>
+      <a class="cc-link" href="/photos">View the gallery</a>
+    </div>
+    <div class="cc-strip" tabindex="0" role="region" aria-label="Venue photos, scroll horizontally">
+      {
+        strip.map((p) => (
+          <figure>
+            <img src={p.src} alt={p.alt} width={p.width} height={p.height} loading="lazy" />
+          </figure>
+        ))
+      }
+    </div>
+  </section>
+</SiteLayout>

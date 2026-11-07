@@ -1,0 +1,61 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { venuePhotos } from '../data/events';
+---
+
+<SiteLayout
+  title="Photos — The Capital Club of Asheville"
+  current="photos"
+  description="Photos of the rooftop terrace and banquet room at The Capital Club of Asheville."
+>
+  <section class="cc-band" aria-labelledby="photos-title">
+    <div class="cc-wrap">
+      <p class="cc-eyebrow">Photos · {venuePhotos.length} views</p>
+      <h1 class="cc-display cc-band__title" id="photos-title">Seen <em>from up here</em></h1>
+      <p class="cc-band__lede">
+        The open-air terrace, the banquet room and the evenings in between. Select any photo to see
+        it full size; use the arrow keys to move through the gallery and Esc to close.
+      </p>
+    </div>
+  </section>
+
+  <div class="cc-wrap cc-gallery-wrap">
+    <ul class="cc-gallery" data-gallery>
+      {
+        venuePhotos.map((p, i) => (
+          <li class="cc-gallery__item">
+            <a class="cc-gallery__link" href={p.src} data-gallery-index={i}>
+              <img src={p.src} alt={p.alt} width={p.width} height={p.height} loading={i < 4 ? 'eager' : 'lazy'} />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <dialog class="cc-lightbox" aria-labelledby="lightbox-title" data-lightbox>
+    <h2 class="visually-hidden" id="lightbox-title">Photo viewer</h2>
+    <figure class="cc-lightbox__figure">
+      <img class="cc-lightbox__img" data-lightbox-img src={venuePhotos[0]!.src} alt="" />
+      <figcaption class="cc-lightbox__caption">
+        <span data-lightbox-caption aria-hidden="true"></span>
+        <span class="cc-lightbox__count" data-lightbox-count aria-hidden="true"></span>
+      </figcaption>
+    </figure>
+    <p class="visually-hidden" aria-live="polite" data-lightbox-live></p>
+    <button type="button" class="cc-lightbox__btn cc-lightbox__close" data-lightbox-close aria-label="Close photo viewer">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 5l14 14M19 5L5 19" /></svg>
+    </button>
+    <button type="button" class="cc-lightbox__btn cc-lightbox__prev" data-lightbox-prev aria-label="Previous photo">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 4l-8 8 8 8" /></svg>
+    </button>
+    <button type="button" class="cc-lightbox__btn cc-lightbox__next" data-lightbox-next aria-label="Next photo">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4l8 8-8 8" /></svg>
+    </button>
+  </dialog>
+</SiteLayout>
+
+<script>
+  import { initLightbox } from '../scripts/lightbox';
+  initLightbox();
+</script>

@@ -1,0 +1,79 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { venue } from '../data/events';
+import { fullAddress } from '../lib/format';
+---
+
+<SiteLayout
+  title="Contact — The Capital Club of Asheville"
+  current="contact"
+  description="Find The Capital Club of Asheville at 82 Patton Ave, call 828-398-5055, or send the events team a message."
+>
+  <section class="cc-band" aria-labelledby="contact-title">
+    <div class="cc-wrap">
+      <p class="cc-eyebrow">Contact</p>
+      <h1 class="cc-display cc-band__title" id="contact-title">Plan an evening <em>with us</em></h1>
+      <p class="cc-band__lede">
+        Questions about an upcoming event, a group reservation or a private evening of your own —
+        the events team is glad to help.
+      </p>
+    </div>
+  </section>
+
+  <div class="cc-wrap cc-contact">
+    <div class="cc-contact__info">
+      <dl class="cc-contact__details">
+        <div>
+          <dt class="cc-eyebrow">Visit</dt>
+          <dd>
+            <address>
+              {venue.name}<br />
+              {venue.street}<br />
+              {venue.city}, {venue.region} {venue.postalCode}
+            </address>
+          </dd>
+        </div>
+        <div>
+          <dt class="cc-eyebrow">Call</dt>
+          <dd><a class="cc-contact__phone" href={venue.phoneHref}>{venue.phone}</a></dd>
+        </div>
+        <div>
+          <dt class="cc-eyebrow">Hours</dt>
+          <dd>
+            <ul class="cc-hours">
+              <li><span>Event office</span> <span>{venue.officeHours}</span></li>
+              <li><span>Venue tours</span> <span>By appointment</span></li>
+              <li><span>Event nights</span> <span>Doors as listed on each event</span></li>
+            </ul>
+          </dd>
+        </div>
+      </dl>
+
+      <a class="cc-mapcard" href={venue.mapHref} target="_blank" rel="noopener">
+        <svg class="cc-mapcard__art" viewBox="0 0 400 240" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid slice">
+          <g class="cc-mapcard__streets">
+            <path d="M-10 70 L410 40" /><path d="M-10 150 L410 128" /><path d="M-10 214 L410 200" />
+            <path d="M60 -10 L96 250" /><path d="M178 -10 L196 250" /><path d="M292 -10 L304 250" />
+            <path d="M-10 250 L250 -10" class="is-major" />
+          </g>
+          <circle class="cc-mapcard__halo" cx="196" cy="78" r="30" />
+          <circle class="cc-mapcard__pin" cx="196" cy="78" r="7" />
+        </svg>
+        <span class="cc-mapcard__label">
+          <span class="cc-eyebrow">Downtown Asheville</span>{' '}
+          <span class="cc-mapcard__addr">{venue.street}</span>{' '}
+          <span class="cc-mapcard__cta">Open in Google Maps<span aria-hidden="true"> ↗</span></span>
+          <span class="visually-hidden">: {fullAddress()} (opens in a new tab)</span>
+        </span>
+      </a>
+    </div>
+
+    <section class="cc-reserve cc-contact__form" aria-labelledby="message-title">
+      <p class="cc-eyebrow">Write to us</p>
+      <h2 class="cc-reserve__title" id="message-title">Send a message</h2>
+      <p class="cc-reserve__lede">We usually reply within two business days.</p>
+      <ContactForm />
+    </section>
+  </div>
+</SiteLayout>

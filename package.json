@@ -13,15 +13,12 @@
     "preview": "astro preview",
     "check": "astro check",
     "verify:noindex": "node scripts/verify-noindex.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "screenshots": "node scripts/screenshots.mjs"
   },
   "dependencies": {
     "@fontsource-variable/bodoni-moda": "^5.3.0",
-    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
-    "@fontsource-variable/figtree": "^5.3.0",
     "@fontsource-variable/jost": "^5.3.0",
-    "@fontsource-variable/newsreader": "^5.3.0",
-    "@fontsource/libre-caslon-display": "^5.3.0",
     "astro": "^7.4.7"
   },
   "devDependencies": {

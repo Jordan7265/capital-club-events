@@ -1,0 +1,61 @@
+---
+/**
+ * One "program" row: oversized date numeral, kicker, title, time/attire and price.
+ * The whole row is clickable through the title link's overlay. `full` adds the photo, the
+ * summary and a Reserve button (used on /events); the compact version is used on the homepage,
+ * where a photo reveals on hover instead (desktop only).
+ */
+import type { VenueEvent } from '../data/events';
+import { dateParts, priceAmount, timeRange } from '../lib/format';
+
+interface Props {
+  event: VenueEvent;
+  full?: boolean;
+  /** Marks the soonest event with a "Next up" badge. */
+  next?: boolean;
+}
+const { event: e, full = false, next = false } = Astro.props;
+const d = dateParts(e.start);
+const href = `/events/${e.slug}`;
+const image = (cls: string) => ({
+  class: cls,
+  src: e.image.src,
+  alt: '',
+  width: e.image.width,
+  height: e.image.height,
+  loading: 'lazy' as const,
+  style: e.image.position ? `object-position:${e.image.position}` : undefined,
+});
+---
+
+<li class:list={['cc-row', { 'cc-row--full': full }]}>
+  <p class="cc-row__date">
+    <time datetime={e.start}>
+      <span class="cc-row__day">{d.day}</span>{' '}
+      <span class="cc-row__month">{d.month} · {d.weekday}</span>
+    </time>
+  </p>
+  {full && <img {...image('cc-row__image')} />}
+  <div class="cc-row__body">
+    <p class="cc-eyebrow">
+      {e.kicker}{next && ' '}{next && <span class="cc-badge">Next up</span>}
+    </p>
+    <h3 class="cc-row__title"><a href={href}>{e.title}</a></h3>
+    <p class="cc-row__meta">{timeRange(e)} · {e.attire}</p>
+    {full && <p class="cc-row__summary">{e.summary}</p>}
+  </div>
+  <div class="cc-row__aside">
+    <p class="cc-row__cost">
+      <span class="cc-row__price">{priceAmount(e.price)}</span>{' '}
+      <span class="cc-row__per">per {e.price.per}</span>
+    </p>
+    {
+      full && (
+        <a class="cc-btn cc-row__cta" href={`${href}#reserve-form`}>
+          Reserve<span class="visually-hidden"> for {e.title}</span>
+        </a>
+      )
+    }
+  </div>
+  {!full && <img {...image('cc-row__thumb')} />}
+</li>

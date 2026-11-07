@@ -1,0 +1,108 @@
+---
+/**
+ * Site chrome for every page: header with the main nav, the main landmark, and the footer
+ * (venue details plus the discreet demo disclaimer). Styling is Direction A, "Skyline Noir"
+ * (see docs/design-decision.md).
+ */
+import '@fontsource-variable/bodoni-moda/opsz.css';
+import '@fontsource-variable/bodoni-moda/opsz-italic.css';
+import '@fontsource-variable/jost';
+import '../styles/site.css';
+import BaseLayout from './BaseLayout.astro';
+import { venue } from '../data/events';
+import { fullAddress } from '../lib/format';
+
+export type Section = 'home' | 'events' | 'event' | 'photos' | 'contact';
+
+interface Props {
+  title: string;
+  /** Which page or section this is. Event detail pages ("event") highlight Upcoming Events. */
+  current?: Section;
+  description?: string;
+}
+const { title, current, description } = Astro.props;
+
+const nav = [
+  { label: 'Upcoming Events', href: '/events', key: 'events' },
+  { label: 'Photos', href: '/photos', key: 'photos' },
+  { label: 'Contact', href: '/contact', key: 'contact' },
+] as const;
+const isActive = (key: string) => key === current || (key === 'events' && current === 'event');
+---
+
+<BaseLayout title={title} description={description} bodyClass="site" themeColor="#0b0d12">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="cc-shell">
+    <header class="cc-header">
+      <a
+        class="cc-header__brand"
+        href="/"
+        aria-label={`${venue.name} — home`}
+        aria-current={current === 'home' ? 'page' : undefined}
+      >
+        <img src="/images/venue/logo.png" alt="" width="392" height="380" />
+        <span class="cc-header__wordmark" aria-hidden="true">
+          <span>The Capital Club</span>
+          <span>Rooftop Events · Asheville</span>
+        </span>
+      </a>
+      <nav class="cc-nav" aria-label="Main">
+        <ul>
+          {
+            nav.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class:list={{ 'is-active': isActive(item.key) }}
+                  aria-current={item.key === current ? 'page' : undefined}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+
+    <footer class="cc-footer">
+      <div class="cc-footer__grid">
+        <div class="cc-footer__brand">
+          <img src="/images/venue/logo.png" alt={venue.name} width="392" height="380" loading="lazy" />
+          <p>Benefits, tastings and late nights on the rooftop, in the heart of downtown Asheville.</p>
+        </div>
+        <div>
+          <h2 class="cc-eyebrow">Visit</h2>
+          <address>
+            {venue.name}<br />
+            {venue.street}<br />
+            {venue.city}, {venue.region} {venue.postalCode}
+          </address>
+          <a class="cc-link" href={venue.mapHref} rel="noopener" target="_blank">
+            Get directions<span class="visually-hidden"> to {fullAddress()} (opens in a new tab)</span>
+          </a>
+        </div>
+        <div>
+          <h2 class="cc-eyebrow">Call</h2>
+          <a class="cc-footer__phone" href={venue.phoneHref}>{venue.phone}</a>
+          <p class="cc-footer__hours">Event office {venue.officeHours}</p>
+        </div>
+        <nav aria-label="Footer">
+          <h2 class="cc-eyebrow">Explore</h2>
+          <ul>
+            <li><a class="cc-link" href="/">Home</a></li>
+            {nav.map((item) => <li><a class="cc-link" href={item.href}>{item.label}</a></li>)}
+          </ul>
+        </nav>
+      </div>
+      <div class="cc-footer__base">
+        <p>© 2026 {venue.name}</p>
+        <p class="cc-footer__demo">Demonstration site — reservations and messages are not processed.</p>
+      </div>
+    </footer>
+  </div>
+</BaseLayout>

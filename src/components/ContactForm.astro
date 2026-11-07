@@ -1,0 +1,90 @@
+---
+/**
+ * Mock contact form. Same contract as ReservationForm: inline validation, a ~1s "Submitting…"
+ * state and a confirmation with a fake reference code. Nothing is ever sent, and without
+ * JavaScript the submit button stays disabled.
+ */
+import FormField from './FormField.astro';
+
+interface Props {
+  id?: string;
+}
+const { id = 'contact' } = Astro.props;
+const f = (name: string) => `${id}-${name}`;
+
+const topics = [
+  'A question about an upcoming event',
+  'Hosting a private event or wedding',
+  'Group reservations',
+  'Press or partnerships',
+  'Something else',
+];
+---
+
+<div class="mf mf--contact" data-mock-form="contact">
+  <form class="mf__form" novalidate data-mf-form aria-labelledby={f('title')}>
+    <p class="visually-hidden" id={f('title')}>Send a message to the events team</p>
+
+    <FormField id={f('name')} name="name" label="Full name">
+      <input class="mf__input" id={f('name')} name="name" type="text" autocomplete="name" required aria-describedby={f('name-error')} />
+    </FormField>
+
+    <FormField id={f('email')} name="email" label="Email">
+      <input class="mf__input" id={f('email')} name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby={f('email-error')} />
+    </FormField>
+
+    <FormField id={f('phone')} name="phone" label="Phone" optional>
+      <input class="mf__input" id={f('phone')} name="phone" type="tel" autocomplete="tel" inputmode="tel" aria-describedby={f('phone-error')} />
+    </FormField>
+
+    <FormField id={f('topic')} name="topic" label="Topic">
+      <select class="mf__input mf__select" id={f('topic')} name="topic" required aria-describedby={f('topic-error')}>
+        <option value="" selected>Choose a topic</option>
+        {topics.map((t) => <option value={t}>{t}</option>)}
+      </select>
+    </FormField>
+
+    <FormField id={f('message')} name="message" label="Message">
+      <textarea class="mf__input mf__textarea" id={f('message')} name="message" rows="5" maxlength="1000" required aria-describedby={f('message-error')}></textarea>
+    </FormField>
+
+    <div class="mf__footer">
+      <button type="submit" class="mf__submit" data-mf-submit disabled>
+        <span data-mf-submit-label>Send message</span>
+      </button>
+    </div>
+
+    <p class="mf__status visually-hidden" role="status" aria-live="polite" data-mf-status></p>
+    <noscript>
+      <p class="mf__noscript">
+        This form needs JavaScript. Nothing you type here is sent anywhere — please call us instead.
+      </p>
+    </noscript>
+  </form>
+
+  <div class="mf__confirmation" data-mf-confirmation hidden>
+    <p class="mf__confirm-kicker">Message received</p>
+    <h3 class="mf__confirm-title" tabindex="-1" data-mf-confirm-heading>Thank you — we’ll be in touch.</h3>
+    <p class="mf__confirm-lede" data-fill="greeting">We’ll reply within two business days.</p>
+    <dl class="mf__confirm-details">
+      <div>
+        <dt>Reference</dt>
+        <dd class="mf__code" data-fill="code"></dd>
+      </div>
+      <div>
+        <dt>Topic</dt>
+        <dd data-fill="topic"></dd>
+      </div>
+      <div>
+        <dt>Reply to</dt>
+        <dd data-fill="email"></dd>
+      </div>
+    </dl>
+    <button type="button" class="mf__again" data-mf-reset>Send another message</button>
+  </div>
+</div>
+
+<script>
+  import { initContactForms } from '../scripts/contact-form';
+  initContactForms();
+</script>

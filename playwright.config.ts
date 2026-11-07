@@ -19,7 +19,7 @@ export default defineConfig({
     // --ignore-lock keeps `astro preview` in the foreground (Astro 7 otherwise auto-backgrounds it
     // under coding agents, which Playwright reads as the server exiting early).
     command: `npm run build && npx astro preview --port ${PORT} --ignore-lock`,
-    url: `http://localhost:${PORT}/mockups/`,
+    url: `http://localhost:${PORT}/`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

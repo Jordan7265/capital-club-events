@@ -3,7 +3,9 @@
  * Dependency-free lint for the project's hard rules (docs/plans/capital-club-events-demo-site/plan.md):
  *   1. Every Node script under scripts/ parses (node --check).
  *   2. The site makes no network calls: no fetch, XHR, beacons, sockets or event streams in src/,
- *      and no <form> with an action or POST method.
+ *      and nothing can submit a form: no <form> with an action or POST method, no formaction /
+ *      formmethod="post" on its buttons, and no scripted submit or action/method assignment.
+ *      These checks scan whole files, so tags and calls split across lines are still caught.
  *   3. No API or server routes: src/pages holds only .astro pages (no .ts/.js endpoints) and
  *      nothing opts out of prerendering.
  *   4. No em dashes in shipped UI text or the README (operator rule). The one exception, approved
@@ -31,19 +33,31 @@ const walk = (dir) =>
 const rel = (p) => relative(root, p);
 const read = (p) => readFileSync(p, 'utf8');
 
-/** Lists every line matching `pattern` (a RegExp or a line predicate) as "file:line: text". */
-function findAll(files, pattern) {
-  const matches = typeof pattern === 'function' ? pattern : (line) => pattern.test(line);
+/**
+ * Scans each file as a whole (so matches may span line breaks) and lists every match of the
+ * global `regex` as "file:line: text", using the line where the match starts. An optional
+ * `keep` predicate filters the matched text, e.g. to test a complete tag for an attribute.
+ */
+function findInFiles(files, regex, keep = () => true) {
   const hits = [];
   for (const file of files) {
-    read(file)
-      .split('\n')
-      .forEach((line, i) => {
-        if (matches(line)) hits.push(`${rel(file)}:${i + 1}: ${line.trim().slice(0, 100)}`);
-      });
+    const text = read(file);
+    for (const match of text.matchAll(regex)) {
+      if (!keep(match[0])) continue;
+      const line = text.slice(0, match.index).split('\n').length;
+      hits.push(`${rel(file)}:${line}: ${match[0].replace(/\s+/g, ' ').trim().slice(0, 100)}`);
+    }
   }
   return hits;
 }
+
+/**
+ * One complete <form ...> start tag, across line breaks. Quoted values and {...} expressions
+ * (two levels deep) are skipped as units, so a ">" inside them (e.g. an arrow function) does
+ * not end the tag early.
+ */
+const FORM_TAG = /<form\b(?:"[^"]*"|'[^']*'|`[^`]*`|\{(?:[^{}]|\{[^{}]*\})*\}|[^>"'`{}])*>/gi;
+const POSTS = /\baction\s*=|\bmethod\s*=\s*\{?\s*["'`]?\s*post\b/i;
 
 const report = (label, hits) => {
   if (hits.length) fail(`${label}:\n     ${hits.join('\n     ')}`);
@@ -67,11 +81,18 @@ const srcFiles = walk(join(root, 'src'));
 const codeFiles = srcFiles.filter((p) => ['.astro', '.ts', '.js', '.mjs'].includes(extname(p)));
 report(
   'no network APIs in src/ (fetch, XMLHttpRequest, sendBeacon, WebSocket, EventSource)',
-  findAll(codeFiles, /\bfetch\s*\(|XMLHttpRequest|sendBeacon|new\s+WebSocket|new\s+EventSource/),
+  findInFiles(codeFiles, /\bfetch\s*\(|XMLHttpRequest|sendBeacon|new\s+WebSocket|new\s+EventSource/g),
 );
 report(
-  'no <form> posts anywhere in src/ (no action attribute, no method="post")',
-  findAll(codeFiles, /<form\b[^>]*\b(action\s*=|method\s*=\s*["']?post)/i),
+  'no form submission paths in src/ (<form> action or method="post", formaction, scripted submit)',
+  [
+    ...findInFiles(codeFiles, FORM_TAG, (tag) => POSTS.test(tag)),
+    ...findInFiles(codeFiles, /\bformaction\s*=|\bformmethod\s*=\s*\{?\s*["'`]?\s*post\b/gi),
+    ...findInFiles(
+      codeFiles,
+      /\.(?:submit|requestSubmit)\s*\(|\.(?:action|method|formAction|formMethod)\s*=(?!=)|setAttribute\s*\(\s*["'`](?:action|method|formaction|formmethod)["'`]/g,
+    ),
+  ],
 );
 
 // 3. No API / server routes
@@ -80,15 +101,16 @@ report(
   'src/pages contains only .astro pages (no API endpoints)',
   pages.filter((p) => extname(p) !== '.astro').map(rel),
 );
-report('nothing opts out of static prerendering', findAll(codeFiles, /export\s+const\s+prerender\s*=\s*false/));
+report('nothing opts out of static prerendering', findInFiles(codeFiles, /export\s+const\s+prerender\s*=\s*false/g));
 
 // 4. No em dashes in shipped UI text or the README, except the operator-approved event name
 const APPROVED_NAME = 'Playgrounds for Asheville \u2014 Rooftop Benefit';
-const EM_DASH = /\u2014|&mdash;|&#8212;|&#x2014;/i;
+// Match the approved name as a unit alongside any em dash, then keep only the stray dashes.
+const NAME_OR_EM_DASH = new RegExp(`${APPROVED_NAME}|\u2014|&mdash;|&#8212;|&#x2014;`, 'gi');
 const textFiles = [...srcFiles, ...walk(join(root, 'public')).filter((p) => extname(p) === '.txt'), join(root, 'README.md')];
 report(
   'no em dashes in src/, public/*.txt or README.md (besides the approved event name)',
-  findAll(textFiles, (line) => EM_DASH.test(line.split(APPROVED_NAME).join(''))),
+  findInFiles(textFiles, NAME_OR_EM_DASH, (match) => match !== APPROVED_NAME),
 );
 
 // 5. No tracked report.html

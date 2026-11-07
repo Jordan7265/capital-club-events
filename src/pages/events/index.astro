@@ -1,0 +1,44 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import EventRow from '../../components/EventRow.astro';
+import { upcomingEvents } from '../../data/events';
+import { eventsByMonth } from '../../lib/format';
+
+const nextSlug = upcomingEvents[0]?.slug;
+---
+
+<SiteLayout
+  title="Upcoming Events — The Capital Club of Asheville"
+  current="events"
+  description="Every upcoming evening on the rooftop at The Capital Club of Asheville: benefits, tastings, live music and New Year’s Eve."
+>
+  <section class="cc-band" aria-labelledby="events-title">
+    <div class="cc-wrap">
+      <p class="cc-eyebrow">Winter season · 2026–27</p>
+      <h1 class="cc-display cc-band__title" id="events-title">Upcoming <em>evenings</em></h1>
+      <p class="cc-band__lede">
+        Benefits, tastings, live music and a New Year’s countdown — every one of them on the rooftop
+        at 82 Patton Avenue. Reserve online in a minute.
+      </p>
+    </div>
+  </section>
+
+  <div class="cc-wrap cc-events">
+    {
+      eventsByMonth(upcomingEvents).map(({ month, year, events: list }) => (
+        <section aria-labelledby={`month-${month}-${year}`}>
+          <div class="cc-month">
+            <h2 id={`month-${month}-${year}`}>
+              {month} {year}
+            </h2>
+          </div>
+          <ol class="cc-program cc-program--full">
+            {list.map((e) => (
+              <EventRow event={e} full next={e.slug === nextSlug} />
+            ))}
+          </ol>
+        </section>
+      ))
+    }
+  </div>
+</SiteLayout>

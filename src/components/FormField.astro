@@ -1,0 +1,22 @@
+---
+/**
+ * Label + control + inline error slot for the mock forms. The control goes in the default slot
+ * and must carry id={id} and aria-describedby={`${id}-error`}; scripts/mock-form.ts fills the
+ * error slot by field name.
+ */
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  optional?: boolean;
+}
+const { id, name, label, optional = false } = Astro.props;
+---
+
+<div class={`mf__field mf__field--${name}`}>
+  <label class="mf__label" for={id}>
+    {label}{optional && ' '}{optional && <span class="mf__optional">(optional)</span>}
+  </label>
+  <slot />
+  <p class="mf__error" id={`${id}-error`} data-error-for={name}></p>
+</div>

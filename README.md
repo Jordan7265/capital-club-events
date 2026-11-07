@@ -6,32 +6,38 @@ system: nothing a visitor types ever leaves the browser.
 
 The spec lives in [`docs/plans/capital-club-events-demo-site/plan.md`](docs/plans/capital-club-events-demo-site/plan.md).
 
-## Current state: design review
+## Pages
 
-Three visual directions were built as static mockups so one could be chosen before the full
-site is built. **Direction A, Skyline Noir, was chosen.** See
-[`docs/design-decision.md`](docs/design-decision.md). The full build (step 2) promotes it and
-removes the mockups.
+Built in Direction A, **Skyline Noir** (dark rooftop luxe), chosen by the operator. See
+[`docs/design-decision.md`](docs/design-decision.md).
 
 | Route | What it shows |
 | --- | --- |
-| `/mockups` | Comparison board: live previews, palettes, type pairings, links |
-| `/mockups/a` · `/mockups/a/events` · `/mockups/a/events/playgrounds-for-asheville-rooftop-benefit` | **A — Skyline Noir**: dark rooftop luxe |
-| `/mockups/b` · `/mockups/b/events` · `/mockups/b/events/playgrounds-for-asheville-rooftop-benefit` | **B — Society Pages**: light editorial / classic |
-| `/mockups/c` · `/mockups/c/events` · `/mockups/c/events/playgrounds-for-asheville-rooftop-benefit` | **C — Ridgeline**: warm modern Blue Ridge |
-| `/` | Temporary holding page that links to `/mockups` |
+| `/` | Dusk rooftop hero with café lights, the Nov 14 benefit spotlight, three more upcoming events, venue blurb, photo strip |
+| `/events` | All seven upcoming events by month, each with photo, date, time, attire, price and a Reserve link |
+| `/events/[slug]` | One page per event: description, details "ticket", map link and the mock reservation form |
+| `/photos` | 16-photo gallery with an accessible lightbox (arrow keys, Home/End, Esc, swipe) |
+| `/contact` | Address, phone, hours, a map card linking to Google Maps, and the mock contact form |
+| 404 | Branded not-found page |
 
-Each direction's event pages include the mock reservation form. It validates inline, shows a
-~1 s "Submitting…" state, then a confirmation with a fake code (e.g. `CC-1114-4F7A`). It makes
-no network request. Without JavaScript the submit button stays disabled and a note explains why.
+### Mock forms (no network, ever)
+
+The reservation form (every event page) and the contact form share `src/scripts/mock-form.ts`.
+They validate inline, show a ~1 s "Submitting…" state, then a confirmation with a fake code
+(`CC-1114-4F7A` for reservations, `CC-MSG-4F7A` for messages). They make no network request
+and never navigate. Without JavaScript the submit button stays disabled and a note explains why.
+
+On phones, event pages also show a slim "$125 · Reserve" bar that jumps to the form. It hides
+once the form reaches the screen.
 
 ## Stack
 
 - [Astro](https://astro.build) 7 with `output: 'static'` and no adapter: no server routes, API
   endpoints or form services.
-- Plain CSS per direction, with fonts self-hosted through `@fontsource` (no third-party font
-  requests).
-- Minimal vanilla TypeScript for the mock form (`src/scripts/reservation-form.ts`).
+- One plain stylesheet (`src/styles/site.css`), with fonts self-hosted through `@fontsource`
+  (no third-party font requests).
+- Minimal vanilla TypeScript for the mock forms, the lightbox and the mobile reserve bar
+  (`src/scripts/`).
 - Event content is typed in `src/data/events.ts`, and event pages are generated from it.
 - Hosting: Vercel project `capital-club-events` (team `mancejs-projects`), git-connected to
   GitHub `mancej/capital-club-events` (transferred from `Jordan7265`, which keeps write access)
@@ -57,7 +63,8 @@ npm run build            # static build → dist/
 npm run verify:noindex   # check the three noindex layers against dist/
 npm run check            # astro check (types + diagnostics)
 npx playwright install chromium   # once, for browser tests
-npm run test:e2e         # Playwright: builds, serves dist/, runs tests/mockups.spec.ts
+npm run test:e2e         # Playwright: builds, serves dist/, runs tests/site.spec.ts
+npm run screenshots      # full-page PNGs of every route at 375/390/430/1440 → .evidence/ (needs `npm run preview` running)
 ```
 
 ## Layout
@@ -67,21 +74,28 @@ public/
   robots.txt                 # Disallow: /
   images/venue/              # venue photos + logo (compressed WebP, ≤ 300 KB, ≤ 1800 px)
 src/
-  data/events.ts             # typed events + venue details (single source of truth)
+  data/events.ts             # typed events, venue details and gallery photos (single source of truth)
   lib/format.ts              # Eastern-time date/time/price formatting
-  layouts/BaseLayout.astro   # shared <head> incl. robots meta
+  layouts/
+    BaseLayout.astro         # shared <head> incl. robots meta
+    SiteLayout.astro         # header nav, main, footer with the demo disclaimer
   components/
-    ReservationForm.astro    # shared mock reservation form markup
-    MockupBar.astro          # review strip on mockup pages
-  scripts/reservation-form.ts# client-side validation + fake submit (no network)
-  mockups/{a,b,c}/           # per-direction layout, CSS and decorative components
-  mockups/directions.ts      # names/descriptions shared by the board and review bar
+    EventRow.astro           # "program" row used on / and /events
+    StringLights.astro       # animated café-light strands over the home hero
+    FormField.astro          # label + control + inline error slot
+    ReservationForm.astro    # mock reservation form
+    ContactForm.astro        # mock contact form
+  scripts/
+    mock-form.ts             # shared validation + fake submit (no network)
+    reservation-form.ts, contact-form.ts
+    lightbox.ts              # /photos dialog
+    reserve-bar.ts           # mobile "Reserve" bar on event pages
+  styles/base.css, site.css
   pages/
-    index.astro, 404.astro
-    mockups/index.astro
-    mockups/{a,b,c}/index.astro, events/index.astro, events/[slug].astro
-scripts/verify-noindex.mjs
-tests/mockups.spec.ts
+    index.astro, 404.astro, photos.astro, contact.astro
+    events/index.astro, events/[slug].astro
+scripts/verify-noindex.mjs, scripts/screenshots.mjs
+tests/site.spec.ts
 ```
 
 ## Imagery

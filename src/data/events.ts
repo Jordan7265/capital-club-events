@@ -39,7 +39,11 @@ export interface VenueEvent {
   description: string[];
   catering: string;
   entertainment: string;
+  /** Two-or-three-word versions of catering/entertainment for compact fact grids. */
+  highlights: { catering: string; entertainment: string };
   attire: string;
+  /** For benefit events: what the proceeds support. */
+  benefit?: string;
   price: EventPrice;
   image: EventImage;
   featured?: boolean;
@@ -53,6 +57,8 @@ export const venue = {
   postalCode: '28801',
   phone: '828-398-5055',
   phoneHref: 'tel:+18283985055',
+  /** Placeholder office hours shown on the contact page and in the footer. */
+  officeHours: 'Tue – Sat, 10 AM – 5 PM',
   mapHref:
     'https://www.google.com/maps/search/?api=1&query=The+Capital+Club+of+Asheville%2C+82+Patton+Ave%2C+Asheville%2C+NC+28801',
   timeZone: 'America/New_York',
@@ -74,7 +80,9 @@ export const events: VenueEvent[] = [
     ],
     catering: 'Mikasa Catering — passed bites and a chef-attended dinner spread',
     entertainment: 'Live DJ from cocktail hour through last dance',
+    highlights: { catering: 'Mikasa Catering', entertainment: 'Live DJ' },
     attire: 'Cocktail or dressy casual',
+    benefit: 'Renovating children’s playgrounds across the Asheville area',
     price: { amount: 125, per: 'person', note: 'Proceeds support playground renovation' },
     image: {
       src: '/images/venue/rooftop-dusk-string-lights.webp',
@@ -99,6 +107,7 @@ export const events: VenueEvent[] = [
     ],
     catering: 'Seasonal small plates paired to each pour',
     entertainment: 'Hosted tasting with a guided flight',
+    highlights: { catering: 'Paired small plates', entertainment: 'Guided tasting' },
     attire: 'Smart casual',
     price: { amount: 75, per: 'person' },
     image: {
@@ -122,6 +131,7 @@ export const events: VenueEvent[] = [
     ],
     catering: 'Mulled wine, hot cider and seasonal snacks',
     entertainment: 'Local makers’ market and a holiday playlist',
+    highlights: { catering: 'Mulled wine & cider', entertainment: 'Makers’ market' },
     attire: 'Casual — dress warmly for the terrace',
     price: { amount: 25, per: 'person', note: 'Includes one mulled wine or cider' },
     image: {
@@ -145,6 +155,7 @@ export const events: VenueEvent[] = [
     ],
     catering: 'Holiday cocktails and a late-night dessert table',
     entertainment: 'Live band, two sets',
+    highlights: { catering: 'Holiday cocktails', entertainment: 'Live band' },
     attire: 'Festive — masks encouraged',
     price: { amount: 95, per: 'person' },
     image: {
@@ -168,6 +179,7 @@ export const events: VenueEvent[] = [
     ],
     catering: 'Heavy hors d’oeuvres and a midnight champagne toast',
     entertainment: 'DJ and a skyline countdown at midnight',
+    highlights: { catering: 'Champagne toast', entertainment: 'DJ & countdown' },
     attire: 'Black tie optional',
     price: { amount: 175, per: 'person' },
     image: {
@@ -191,6 +203,7 @@ export const events: VenueEvent[] = [
     ],
     catering: 'Seasonal cocktails and shareable plates',
     entertainment: 'Live jazz trio, three sets',
+    highlights: { catering: 'Cocktails & small plates', entertainment: 'Live jazz trio' },
     attire: 'Dressy casual',
     price: { amount: 60, per: 'person' },
     image: {
@@ -214,6 +227,7 @@ export const events: VenueEvent[] = [
     ],
     catering: 'Plated multi-course dinner for two',
     entertainment: 'Live acoustic set',
+    highlights: { catering: 'Plated dinner for two', entertainment: 'Acoustic set' },
     attire: 'Cocktail attire',
     price: { amount: 150, per: 'couple' },
     image: {

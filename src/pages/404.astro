@@ -1,14 +1,30 @@
 ---
-import '@fontsource-variable/bodoni-moda/opsz.css';
-import '../styles/holding.css';
-import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { featuredEvent } from '../data/events';
+import { dateParts } from '../lib/format';
+
+const next = dateParts(featuredEvent.start);
 ---
 
-<BaseLayout title="Page not found — The Capital Club of Asheville" bodyClass="holding">
-  <main id="main" tabindex="-1">
-    <img src="/images/venue/logo.png" alt="The Capital Club of Asheville" width="392" height="380" />
-    <h1>This page wandered off the rooftop.</h1>
-    <p>We couldn’t find what you were looking for.</p>
-    <a class="holding__cta" href="/">Back to the start →</a>
-  </main>
-</BaseLayout>
+<SiteLayout title="Page not found — The Capital Club of Asheville">
+  <section class="cc-band cc-notfound" aria-labelledby="notfound-title">
+    <div class="cc-wrap">
+      <p class="cc-notfound__numeral" aria-hidden="true">404</p>
+      <p class="cc-eyebrow">Page not found</p>
+      <h1 class="cc-display cc-band__title" id="notfound-title">This page wandered <em>off the rooftop</em></h1>
+      <p class="cc-band__lede">
+        We couldn’t find what you were looking for. It may have moved, or the link may be mistyped.
+      </p>
+      <div class="cc-notfound__actions">
+        <a class="cc-btn cc-btn--solid" href="/events">
+          See upcoming events <span class="cc-btn__arrow" aria-hidden="true">→</span>
+        </a>
+        <a class="cc-btn" href="/">Back to the homepage</a>
+      </div>
+      <p class="cc-notfound__next">
+        Next on the rooftop: <a class="cc-inline-link" href={`/events/${featuredEvent.slug}`}>{featuredEvent.title}</a>,{' '}
+        {next.weekday}, {next.month} {next.day}.
+      </p>
+    </div>
+  </section>
+</SiteLayout>

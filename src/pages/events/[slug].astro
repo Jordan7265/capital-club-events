@@ -1,0 +1,129 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import ReservationForm from '../../components/ReservationForm.astro';
+import { events, upcomingEvents, venue, type VenueEvent } from '../../data/events';
+import { dateParts, fullAddress, longDate, priceAmount, timeRange } from '../../lib/format';
+
+export function getStaticPaths() {
+  return events.map((event) => ({ params: { slug: event.slug }, props: { event } }));
+}
+
+interface Props {
+  event: VenueEvent;
+}
+
+const { event } = Astro.props;
+const d = dateParts(event.start);
+const [mainTitle, subTitle] = event.title.split(' — ');
+const index = upcomingEvents.findIndex((e) => e.slug === event.slug);
+const earlier = upcomingEvents[index - 1];
+const later = upcomingEvents[index + 1];
+---
+
+<SiteLayout title={`${event.title} — The Capital Club of Asheville`} current="event" description={event.summary}>
+  <section class="cc-event-hero" aria-labelledby="event-title" style={`--pos:${event.image.position ?? '50% 50%'}`}>
+    <div class="cc-hero__media">
+      <img src={event.image.src} alt={event.image.alt} width={event.image.width} height={event.image.height} fetchpriority="high" />
+    </div>
+    <div class="cc-wrap cc-event-hero__content">
+      <p class="cc-eyebrow cc-reveal" style="--i:0">{event.kicker} · {d.weekdayLong}, {d.monthLong} {d.day}</p>
+      <h1 class="cc-display cc-event-hero__title cc-reveal" id="event-title" style="--i:1">
+        {mainTitle}
+        {subTitle && <span class="cc-event-hero__sub"><span class="visually-hidden">: </span>{subTitle}</span>}
+      </h1>
+      <p class="cc-event-hero__when cc-reveal" style="--i:2">
+        <span>{longDate(event.start)}</span>{' '}
+        <span>{timeRange(event)}</span>{' '}
+        <span>{priceAmount(event.price)} per {event.price.per}</span>
+      </p>
+    </div>
+  </section>
+
+  <div class="cc-reservebar" data-reserve-bar hidden>
+    <p class="cc-reservebar__price">
+      <strong>{priceAmount(event.price)}</strong>{' '}
+      <span>per {event.price.per} · {d.weekday}, {d.month} {d.day}</span>
+    </p>
+    <a class="cc-btn cc-btn--solid" href="#reserve-form">
+      Reserve<span class="visually-hidden"> for {event.title}</span>
+    </a>
+  </div>
+
+  <div class="cc-wrap cc-event-body">
+    <article>
+      <div class="cc-prose">
+        {event.description.map((p) => <p>{p}</p>)}
+      </div>
+
+      {
+        event.benefit && (
+          <aside class="cc-benefit" aria-labelledby="benefit-title">
+            <h2 class="cc-eyebrow" id="benefit-title">The cause</h2>
+            <p class="cc-benefit__text">{event.benefit}.</p>
+            {event.price.note && <p class="cc-benefit__note">{event.price.note} — every ticket counts.</p>}
+          </aside>
+        )
+      }
+
+      <section class="cc-ticket" aria-labelledby="details-title">
+        <div class="cc-ticket__main">
+          <h2 class="visually-hidden" id="details-title">Event details</h2>
+          <dl>
+            <div><dt>Date</dt><dd>{longDate(event.start)}</dd></div>
+            <div><dt>Time</dt><dd>{timeRange(event)}</dd></div>
+            <div><dt>Catering</dt><dd>{event.catering}</dd></div>
+            <div><dt>Entertainment</dt><dd>{event.entertainment}</dd></div>
+            <div><dt>Attire</dt><dd>{event.attire}</dd></div>
+            <div><dt>Venue</dt><dd>{venue.name}</dd></div>
+          </dl>
+        </div>
+        <div class="cc-ticket__stub">
+          <span>Admit one</span>{' '}
+          <strong>{priceAmount(event.price)}</strong>{' '}
+          <span>per {event.price.per}</span>
+          {event.price.note && ' '}{event.price.note && <small>{event.price.note}</small>}
+        </div>
+        <div class="cc-ticket__map">
+          <address>{fullAddress()}</address>
+          <a class="cc-link" href={venue.mapHref} target="_blank" rel="noopener">
+            Open in Maps<span class="visually-hidden"> (opens in a new tab)</span>
+          </a>
+        </div>
+      </section>
+    </article>
+
+    <section class="cc-reserve" aria-labelledby="reserve-title" id="reserve-form">
+      <p class="cc-eyebrow">Reservations</p>
+      <h2 class="cc-reserve__title" id="reserve-title">Save your place</h2>
+      <p class="cc-reserve__lede">{d.weekday}, {d.month} {d.day} · {timeRange(event)} · up to 10 guests per reservation.</p>
+      <ReservationForm event={event} />
+    </section>
+  </div>
+
+  <nav class="cc-wrap cc-pager" aria-label="More events">
+    {
+      earlier ? (
+        <a class="cc-pager__link" href={`/events/${earlier.slug}`} rel="prev">
+          <span class="cc-eyebrow">← Earlier</span>{' '}
+          <span class="cc-pager__title">{earlier.title}</span>
+        </a>
+      ) : (
+        <span />
+      )
+    }
+    <a class="cc-link cc-pager__all" href="/events">All events</a>
+    {
+      later && (
+        <a class="cc-pager__link cc-pager__link--next" href={`/events/${later.slug}`} rel="next">
+          <span class="cc-eyebrow">Next →</span>{' '}
+          <span class="cc-pager__title">{later.title}</span>
+        </a>
+      )
+    }
+  </nav>
+</SiteLayout>
+
+<script>
+  import { initReserveBar } from '../../scripts/reserve-bar';
+  initReserveBar();
+</script>

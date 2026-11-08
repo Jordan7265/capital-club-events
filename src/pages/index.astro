@@ -87,6 +87,14 @@ const strip = [
           <div><dt>Entertainment</dt><dd>{next.highlights.entertainment}</dd></div>
           <div><dt>Attire</dt><dd>{next.attire}</dd></div>
         </dl>
+        {
+          next.toyDrive && (
+            <p class="cc-toycall">
+              <span class="cc-eyebrow">Toy drive</span>{' '}
+              <a class="cc-link" href={`/events/${next.slug}#toy-drive`}>{next.toyDrive.ask}</a>
+            </p>
+          )
+        }
         <p class="cc-price">
           <strong>{priceAmount(next.price)}</strong>{' '}
           <span>per {next.price.per}{next.price.note && ` · ${next.price.note}`}</span>

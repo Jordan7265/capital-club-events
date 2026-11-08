@@ -8,6 +8,13 @@ function estimateTotal(amount: number, per: string, guests: number): number {
   return per === 'couple' ? amount * Math.ceil(guests / 2) : amount * guests;
 }
 
+/** Confirmation text for the optional toy-drive pledge (field only exists on toy-drive events). */
+function toyPledge(toys: string): string {
+  const n = Number(toys);
+  if (!n) return 'Not this time';
+  return `Bringing ${n} ${n === 1 ? 'toy' : 'toys'}. Thank you!`;
+}
+
 export function initReservationForms() {
   for (const root of document.querySelectorAll<HTMLElement>('[data-mock-form="reservation"]')) {
     const amount = Number(root.dataset.priceAmount ?? '0');
@@ -21,6 +28,8 @@ export function initReservationForms() {
         email: rules.email,
         phone: rules.phone,
         guests: rules.guests,
+        // Optional select with fixed options; absent on events without a toy drive.
+        toys: () => null,
         notes: rules.notes,
       },
       update: ({ guests }) => {
@@ -31,9 +40,10 @@ export function initReservationForms() {
             ? `$${estimateTotal(amount, per, n).toLocaleString('en-US')}`
             : 'Select guests';
       },
-      fill: ({ name, email, guests }) => ({
+      fill: ({ name, email, guests, toys }) => ({
         code: fakeCode(stem),
         guests: `${guests} ${guests === '1' ? 'guest' : 'guests'}`,
+        toys: toyPledge(toys ?? ''),
         greeting: `Thank you, ${firstName(name ?? '')}. We’ve saved your spot.`,
         emailNote: `Check your email at ${email} for your confirmation.`,
       }),

@@ -19,6 +19,9 @@ const { event, submitLabel = 'Reserve my spot', id = 'reserve' } = Astro.props;
 const f = (name: string) => `${id}-${name}`;
 const guestOptions = Array.from({ length: 10 }, (_, i) => i + 1);
 const defaultGuests = 2;
+/** Toy-drive pledge: 0 ("not this time") to 5; defaults to the event's ask of one toy. */
+const toyOptions = Array.from({ length: 6 }, (_, i) => i);
+const defaultToys = 1;
 const perLabel = event.price.per === 'couple' ? 'per couple' : 'per guest';
 ---
 
@@ -55,6 +58,20 @@ const perLabel = event.price.per === 'couple' ? 'per couple' : 'per guest';
         }
       </select>
     </FormField>
+
+    {
+      event.toyDrive && (
+        <FormField id={f('toys')} name="toys" label="Toys you’ll bring to donate" optional>
+          <select class="mf__input mf__select" id={f('toys')} name="toys" aria-describedby={f('toys-error')}>
+            {toyOptions.map((n) => (
+              <option value={n} selected={n === defaultToys}>
+                {n === 0 ? 'Not this time' : `${n} ${n === 1 ? 'toy' : 'toys'}`}
+              </option>
+            ))}
+          </select>
+        </FormField>
+      )
+    }
 
     <FormField id={f('notes')} name="notes" label="Dietary notes" optional>
       <textarea class="mf__input mf__textarea" id={f('notes')} name="notes" rows="3" maxlength="500" aria-describedby={f('notes-error')}></textarea>
@@ -102,6 +119,14 @@ const perLabel = event.price.per === 'couple' ? 'per couple' : 'per guest';
         <dt>Guests</dt>
         <dd data-fill="guests"></dd>
       </div>
+      {
+        event.toyDrive && (
+          <div>
+            <dt>Toy drive</dt>
+            <dd data-fill="toys"></dd>
+          </div>
+        )
+      }
     </dl>
     <button type="button" class="mf__again" data-mf-reset>Make another reservation</button>
   </div>

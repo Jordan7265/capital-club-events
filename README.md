@@ -29,6 +29,11 @@ and never navigate. Without JavaScript the submit button stays disabled and a no
 The reservation confirmation also tells guests to check the email address they entered for their
 confirmation. No email is sent; the footer disclaimer says reservations are not processed.
 
+Events with a `toyDrive` in `src/data/events.ts` (currently only Nov 14, "Deck the Rooftop") also
+show a toy-drive panel and details row on the event page, a callout in the home spotlight and on
+`/events`, and an optional "Toys you’ll bring to donate" picker (default one toy). The pledge is
+echoed in the reservation confirmation.
+
 On phones, event pages also show a slim "$125 · Reserve" bar that jumps to the form. It hides
 once the form reaches the screen.
 

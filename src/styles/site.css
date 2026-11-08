@@ -1258,6 +1258,7 @@
 
 .mf__field--name,
 .mf__field--email,
+.mf__field--toys,
 .mf__field--notes,
 .mf__field--message,
 .mf__footer,
@@ -1530,14 +1531,17 @@
   margin-left: 0.6rem;
 }
 
-.cc-benefit {
+/* "The cause" and the toy-drive panel share one gold-ruled callout style. */
+.cc-benefit,
+.cc-toydrive {
   margin-top: 3rem;
   padding: 1.5rem 1.75rem;
   border-left: 2px solid var(--gold);
   background: linear-gradient(90deg, rgba(214, 178, 116, 0.1), transparent 85%);
 }
 
-.cc-benefit__text {
+.cc-benefit__text,
+.cc-toydrive__ask {
   margin-top: 0.6rem;
   font-family: var(--display);
   font-size: clamp(1.4rem, 2.4vw, 1.75rem);
@@ -1548,6 +1552,41 @@
 .cc-benefit__note {
   margin-top: 0.6rem;
   color: var(--muted);
+}
+
+/* Toy drive panel (event page): sits tight under "The cause", adds a what-to-bring list. */
+.cc-benefit + .cc-toydrive {
+  margin-top: 1.25rem;
+}
+
+.cc-toydrive__list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding-left: 1.25rem;
+  color: #ddd5c8;
+  font-size: 1rem;
+}
+
+.cc-toydrive__list li::marker {
+  color: var(--gold);
+}
+
+/* Toy drive callout in the home spotlight and on the /events row. */
+.cc-toycall {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 1rem;
+  margin: -0.75rem 0 1.25rem;
+}
+
+.cc-row__toys {
+  margin-top: 0.6rem;
+  font-family: var(--display);
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--gold);
 }
 
 .cc-pager {

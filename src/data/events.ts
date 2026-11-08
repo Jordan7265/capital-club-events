@@ -49,6 +49,12 @@ export interface VenueEvent {
   attire: string;
   /** For benefit events: what the proceeds support. */
   benefit?: string;
+  /**
+   * For donation drives: the one-line ask and what/where details. Adds a toy-drive panel and
+   * details row to the event page, a callout to the home spotlight and /events row, and an
+   * optional "toys you'll bring" picker to the reservation form.
+   */
+  toyDrive?: { ask: string; details: string[] };
   price: EventPrice;
   image: EventImage;
   featured?: boolean;
@@ -88,6 +94,15 @@ export const events: VenueEvent[] = [
     highlights: { catering: 'Mikasa Catering', entertainment: 'Live DJ' },
     attire: 'Cocktail or dressy casual',
     benefit: 'Holiday gifts for Asheville City Schools students, through the Asheville City Schools Foundation',
+    toyDrive: {
+      ask: 'Bring a new, unwrapped toy to donate',
+      details: [
+        'New, unwrapped toys, books and games for kids of every age.',
+        'Gift cards are welcome too, especially for older students.',
+        'Leave them under the tree by the rooftop entrance when you arrive. Our team takes it from there.',
+        'Please leave gifts unwrapped so volunteers can sort them by age.',
+      ],
+    },
     price: { amount: 125, per: 'person', note: 'Proceeds benefit the Asheville City Schools Foundation' },
     // Stock photo (Pexels License), not a venue photo: the evening is a toy drive, so it is
     // pictured by a teddy bear under holiday lights. Source and license: public/images/CREDITS.md.

@@ -65,6 +65,18 @@ const later = upcomingEvents[index + 1];
         )
       }
 
+      {
+        event.toyDrive && (
+          <aside class="cc-toydrive" id="toy-drive" aria-labelledby="toydrive-title">
+            <p class="cc-eyebrow">Toy drive</p>
+            <h2 class="cc-toydrive__ask" id="toydrive-title">{event.toyDrive.ask}</h2>
+            <ul class="cc-toydrive__list">
+              {event.toyDrive.details.map((item) => <li>{item}</li>)}
+            </ul>
+          </aside>
+        )
+      }
+
       <section class="cc-ticket" aria-labelledby="details-title">
         <div class="cc-ticket__main">
           <h2 class="visually-hidden" id="details-title">Event details</h2>
@@ -74,6 +86,7 @@ const later = upcomingEvents[index + 1];
             <div><dt>Catering</dt><dd>{event.catering}</dd></div>
             <div><dt>Entertainment</dt><dd>{event.entertainment}</dd></div>
             <div><dt>Attire</dt><dd>{event.attire}</dd></div>
+            {event.toyDrive && <div><dt>Toy drive</dt><dd>{event.toyDrive.ask}</dd></div>}
             <div><dt>Venue</dt><dd>{venue.name}</dd></div>
           </dl>
         </div>

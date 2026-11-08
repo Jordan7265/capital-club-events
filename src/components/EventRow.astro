@@ -43,6 +43,7 @@ const image = (cls: string) => ({
     <h3 class="cc-row__title"><a href={href}>{e.title}</a></h3>
     <p class="cc-row__meta">{timeRange(e)} · {e.attire}</p>
     {full && <p class="cc-row__summary">{e.summary}</p>}
+    {full && e.toyDrive && <p class="cc-row__toys">{e.toyDrive.ask}</p>}
   </div>
   <div class="cc-row__aside">
     <p class="cc-row__cost">

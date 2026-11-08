@@ -215,6 +215,30 @@ test('Nov 14 toy drive states its purpose, beneficiary, caterer, DJ and attire',
   await expect(dd('Attire')).toHaveText('Cocktail or dressy casual');
 });
 
+test('Nov 14 toy drive asks guests to bring toys on its page, the home spotlight and /events', async ({ page }) => {
+  const ASK = 'Bring a new, unwrapped toy to donate';
+  await page.goto(`/events/${FEATURED.slug}`);
+  const panel = page.locator('#toy-drive');
+  await expect(panel.getByRole('heading', { level: 2 })).toHaveText(ASK);
+  await expect(panel.locator('li')).toHaveText([
+    'New, unwrapped toys, books and games for kids of every age.',
+    'Gift cards are welcome too, especially for older students.',
+    'Leave them under the tree by the rooftop entrance when you arrive. Our team takes it from there.',
+    'Please leave gifts unwrapped so volunteers can sort them by age.',
+  ]);
+  const toyRow = page.locator('.cc-ticket dl > div', { has: page.locator('dt', { hasText: /^Toy drive$/ }) });
+  await expect(toyRow.locator('dd')).toHaveText(ASK);
+
+  await page.goto('/');
+  const call = page.locator('.cc-toycall a');
+  await expect(call).toHaveText(ASK);
+  await expect(call).toHaveAttribute('href', `/events/${FEATURED.slug}#toy-drive`);
+
+  await page.goto('/events');
+  await expect(page.locator('main .cc-row').first().locator('.cc-row__toys')).toHaveText(ASK);
+  await expect(page.locator('main .cc-row__toys')).toHaveCount(1);
+});
+
 test('Nov 14 toy drive is pictured by a teddy bear under holiday lights on the home page, /events and its own page', async ({ page }) => {
   const PHOTO = '/images/events/toy-drive-teddy-bear-tree-lights.webp';
   await page.goto('/');
@@ -273,6 +297,10 @@ for (const width of [1440, 390]) {
     await phone.fill('828-555-0142');
     await guests.selectOption('3');
     await expect(form.locator('[data-mf-total]')).toHaveText('$375');
+    const toys = form.getByLabel('Toys you’ll bring to donate (optional)');
+    await expect(toys).toHaveValue('1');
+    await expect(toys.locator('option')).toHaveText(['Not this time', '1 toy', '2 toys', '3 toys', '4 toys', '5 toys']);
+    await toys.selectOption('3');
     await form.getByLabel('Dietary notes (optional)').fill('One vegetarian');
 
     const started = Date.now();
@@ -290,6 +318,7 @@ for (const width of [1440, 390]) {
     await expect(confirmation).toContainText('Saturday, November 14, 2026 · 4:30 – 8:30 PM');
     await expect(confirmation.locator('[data-fill="emailNote"]')).toHaveText('Check your email at avery@example.com for your confirmation.');
     await expect(confirmation.locator('[data-fill="guests"]')).toHaveText('3 guests');
+    await expect(confirmation.locator('[data-fill="toys"]')).toHaveText('Bringing 3 toys. Thank you!');
     await expect(confirmation).toContainText('Thank you, Avery');
     await expect(form.locator('form')).toBeHidden();
 
@@ -304,9 +333,26 @@ for (const width of [1440, 390]) {
     await expect(name).toBeFocused();
     await expect(submit).toHaveText('Reserve my spot');
     await expect(form.locator('[data-mf-total]')).toHaveText('$250');
+    await expect(toys).toHaveValue('1');
     expect(requests).toEqual([]);
   });
 }
+
+test('toy drive: "not this time" pledge, and no toy picker on events without a drive', async ({ page }) => {
+  await page.goto(`/events/${FEATURED.slug}`);
+  const form = page.locator('[data-mock-form="reservation"]');
+  await form.getByLabel('Full name').fill('Avery Example');
+  await form.getByLabel('Email').fill('avery@example.com');
+  await form.getByLabel('Toys you’ll bring to donate (optional)').selectOption('0');
+  await form.locator('[data-mf-submit]').click();
+  await expect(form.locator('[data-fill="toys"]')).toHaveText('Not this time', { timeout: 3000 });
+
+  for (const e of EVENTS.slice(1)) {
+    await page.goto(`/events/${e.slug}`);
+    await expect(page.locator('[data-mock-form="reservation"] select[name="toys"]'), e.slug).toHaveCount(0);
+    await expect(page.locator('#toy-drive'), e.slug).toHaveCount(0);
+  }
+});
 
 test('per-couple pricing and guest-count bounds', async ({ page }) => {
   await page.goto('/events/valentines-supper-club');
@@ -681,7 +727,8 @@ for (const width of [375, 390, 430]) {
           return { label: dt.textContent, dt: dt.getBoundingClientRect().toJSON(), textLeft: text.left, textTop: text.top };
         }),
       );
-      expect(rows.length).toBe(4);
+      // The Nov 14 toy drive adds a fifth "Toy drive" row; it must lay out like the others.
+      expect(rows.map((r) => r.label)).toEqual(['Confirmation', 'Event', 'Date', 'Guests', 'Toy drive']);
       for (const r of rows) {
         expect(r.textTop, `${r.label}: value below its label`).toBeGreaterThanOrEqual(r.dt.bottom - 1);
         expect(Math.abs(r.textLeft - r.dt.left), `${r.label}: value left-aligned with its label`).toBeLessThan(1);
